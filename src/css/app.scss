@@ -1,0 +1,12 @@
+// app global css in SCSS form
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+    background-color: #f8fafb;
+}
+
+a{
+    text-decoration: none;
+}
