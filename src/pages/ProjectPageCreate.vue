@@ -865,27 +865,15 @@ export default {
       </q-card-section>
       <q-form @submit="createBuilding()" class="q-gutter-md">
         <q-card-section style="max-height: 70vh" class="scroll q-pt-none">
-          <q-input
-            label="Title"
-            v-model="createBuildingDialog.data.title"
-            autofocus
-            :rules="[
-              (val) => (val && val.length > 0) || 'Title field is required!',
-            ]"
-          />
-          <q-select
-            v-model="createBuildingDialog.data.protocol"
-            :options="createBuildingDialog.protocolOptions"
-            label="Protocol"
-          />
+          <q-input label="Title" v-model="createBuildingDialog.data.title" autofocus :rules="[
+            (val) => (val && val.length > 0) || 'Title field is required!',
+          ]" />
+          <q-select v-model="createBuildingDialog.data.protocol" :options="createBuildingDialog.protocolOptions"
+            label="Protocol" />
           <q-input label="IP" v-model="createBuildingDialog.data.ip" />
           <q-input label="Modbus Tcp Port" v-model="createBuildingDialog.data.modbusTcpPort" />
           <q-input label="COM Port" v-model="createBuildingDialog.data.comPort" />
-          <q-input
-            label="Baud Rate"
-            type="number"
-            v-model.number="createBuildingDialog.data.baudRate"
-          />
+          <q-input label="Baud Rate" type="number" v-model.number="createBuildingDialog.data.baudRate" />
           <q-input label="Country" v-model="createBuildingDialog.data.country" />
           <q-input label="State" v-model="createBuildingDialog.data.state" />
           <q-input label="City" v-model="createBuildingDialog.data.city" />
@@ -908,27 +896,15 @@ export default {
       </q-card-section>
       <q-form @submit="editBuilding()" class="q-gutter-md">
         <q-card-section style="max-height: 70vh" class="scroll q-pt-none">
-          <q-input
-            label="Title"
-            v-model="editBuildingDialog.data.title"
-            autofocus
-            :rules="[
-              (val) => (val && val.length > 0) || 'Title field is required!',
-            ]"
-          />
-          <q-select
-            v-model="editBuildingDialog.data.protocol"
-            :options="editBuildingDialog.protocolOptions"
-            label="Protocol"
-          />
+          <q-input label="Title" v-model="editBuildingDialog.data.title" autofocus :rules="[
+            (val) => (val && val.length > 0) || 'Title field is required!',
+          ]" />
+          <q-select v-model="editBuildingDialog.data.protocol" :options="editBuildingDialog.protocolOptions"
+            label="Protocol" />
           <q-input label="IP" v-model="editBuildingDialog.data.ip" />
           <q-input label="Modbus Tcp Port" v-model="editBuildingDialog.data.modbusTcpPort" />
           <q-input label="COM Port" v-model="editBuildingDialog.data.comPort" />
-          <q-input
-            label="Baud Rate"
-            type="number"
-            v-model.number="editBuildingDialog.data.baudRate"
-          />
+          <q-input label="Baud Rate" type="number" v-model.number="editBuildingDialog.data.baudRate" />
           <q-input label="Country" v-model="editBuildingDialog.data.country" />
           <q-input label="State" v-model="editBuildingDialog.data.state" />
           <q-input label="City" v-model="editBuildingDialog.data.city" />
@@ -951,43 +927,18 @@ export default {
       </q-card-section>
       <q-form @submit="createDevice()" class="q-gutter-md">
         <q-card-section style="max-height: 70vh" class="scroll q-pt-none">
-          <q-select
-            v-model="createDeviceDialog.data.productType"
-            :options="createDeviceDialog.productTypes"
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            @filter="filterProductTypes"
-            label="Product Type"
-            :rules="[
+          <q-select v-model="createDeviceDialog.data.productType" :options="createDeviceDialog.productTypes" use-input
+            hide-selected fill-input input-debounce="0" @filter="filterProductTypes" label="Product Type" :rules="[
               (val) =>
                 (val && val.length > 0) || 'Product Type field is required!',
-            ]"
-          />
-          <q-input
-            label="Alias"
-            v-model="createDeviceDialog.data.alias"
-            :rules="[
-              (val) => (val && val.length > 0) || 'Alias field is required!',
-            ]"
-            autofocus
-          />
-          <q-select
-            v-model="createDeviceDialog.data.connection"
-            :options="createDeviceDialog.connectionOptions"
-            label="Connection"
-          />
-          <q-input
-            label="Serial Number"
-            type="number"
-            v-model.number="createDeviceDialog.data.serialNumber"
-          />
-          <q-input
-            label="Network ID"
-            type="number"
-            v-model.number="createDeviceDialog.data.networkId"
-          />
+            ]" />
+          <q-input label="Alias" v-model="createDeviceDialog.data.alias" :rules="[
+            (val) => (val && val.length > 0) || 'Alias field is required!',
+          ]" autofocus />
+          <q-select v-model="createDeviceDialog.data.connection" :options="createDeviceDialog.connectionOptions"
+            label="Connection" />
+          <q-input label="Serial Number" type="number" v-model.number="createDeviceDialog.data.serialNumber" />
+          <q-input label="Network ID" type="number" v-model.number="createDeviceDialog.data.networkId" />
           <q-input label="Floor" v-model="createDeviceDialog.data.floor" />
           <q-input label="Room" v-model="createDeviceDialog.data.room" />
         </q-card-section>
@@ -1007,43 +958,18 @@ export default {
       </q-card-section>
       <q-form @submit="editDevice()" class="q-gutter-md">
         <q-card-section style="max-height: 70vh" class="scroll q-pt-none">
-          <q-select
-            v-model="editDeviceDialog.data.productType"
-            :options="editDeviceDialog.productTypes"
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            @filter="filterProductTypes"
-            label="Product Type"
-            :rules="[
+          <q-select v-model="editDeviceDialog.data.productType" :options="editDeviceDialog.productTypes" use-input
+            hide-selected fill-input input-debounce="0" @filter="filterProductTypes" label="Product Type" :rules="[
               (val) =>
                 (val && val.length > 0) || 'Product Type field is required!',
-            ]"
-          />
-          <q-input
-            label="Alias"
-            v-model="editDeviceDialog.data.alias"
-            :rules="[
-              (val) => (val && val.length > 0) || 'Alias field is required!',
-            ]"
-            autofocus
-          />
-          <q-select
-            v-model="editDeviceDialog.data.connection"
-            :options="editDeviceDialog.connectionOptions"
-            label="Connection"
-          />
-          <q-input
-            label="Serial Number"
-            type="number"
-            v-model.number="editDeviceDialog.data.serialNumber"
-          />
-          <q-input
-            label="Network ID"
-            type="number"
-            v-model.number="editDeviceDialog.data.networkId"
-          />
+            ]" />
+          <q-input label="Alias" v-model="editDeviceDialog.data.alias" :rules="[
+            (val) => (val && val.length > 0) || 'Alias field is required!',
+          ]" autofocus />
+          <q-select v-model="editDeviceDialog.data.connection" :options="editDeviceDialog.connectionOptions"
+            label="Connection" />
+          <q-input label="Serial Number" type="number" v-model.number="editDeviceDialog.data.serialNumber" />
+          <q-input label="Network ID" type="number" v-model.number="editDeviceDialog.data.networkId" />
           <q-input label="Floor" v-model="editDeviceDialog.data.floor" />
           <q-input label="Room" v-model="editDeviceDialog.data.room" />
         </q-card-section>
@@ -1056,75 +982,35 @@ export default {
     </q-card>
   </q-dialog>
 
-  <q-dialog
-    @hide="onHideEditImageDialog()"
-    v-model="editImageDialog.active"
-    :persistent="editImageDialog.persistent"
-  >
+  <q-dialog @hide="onHideEditImageDialog()" v-model="editImageDialog.active" :persistent="editImageDialog.persistent">
     <q-card style="min-width: 450px">
       <q-card-section>
         <div class="text-h6">Update image</div>
       </q-card-section>
       <q-card-section class="q-pt-none">
-        <file-upload
-          ref="uploadComponentRef"
-          :types="['image/*']"
-          :path="`project-images/${newProject?.name}`"
-          @uploaded="handleUploaded"
-          @file-added="editImageDialog.uploadBtnDisabled = false"
-          @file-removed="editImageDialog.uploadBtnDisabled = true"
-        />
+        <file-upload ref="uploadComponentRef" :types="['image/*']" :path="`project-images/${newProject?.name}`"
+          @uploaded="handleUploaded" @file-added="editImageDialog.uploadBtnDisabled = false"
+          @file-removed="editImageDialog.uploadBtnDisabled = true" />
       </q-card-section>
 
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="Cancel" @click="cancelUpload()" />
-        <q-btn
-          :disabled="editImageDialog.uploadBtnDisabled"
-          :loading="editImageDialog.uploadBtnLoading"
-          flat
-          label="Upload & Save"
-          @click="startUpload()"
-        />
+        <q-btn :disabled="editImageDialog.uploadBtnDisabled" :loading="editImageDialog.uploadBtnLoading" flat
+          label="Upload & Save" @click="startUpload()" />
       </q-card-actions>
     </q-card>
   </q-dialog>
   <q-header elevated class="bg-white text-black">
     <app-toolbar class="bg-primary text-white edit-page">
       <template #menu-open-btn>
-        <q-btn
-          class="mr-2"
-          flat
-          color="white"
-          text-color="grey-4"
-          icon="arrow_back"
-          @click="$router.push({ name: 'user', params: { tab: 'projects' } })"
-        />
+        <q-btn class="mr-2" flat color="white" text-color="grey-4" icon="arrow_back"
+          @click="$router.push({ name: 'home' })" />
       </template>
       <template #desktop-menu>
-        <h1
-          class="truncate lg:border-l-2 border-solid text-2xl font-bold lg:ml-4 px-4"
-        >Create Project</h1>
+        <h1 class="truncate lg:border-l-2 border-solid text-2xl font-bold lg:ml-4 px-4">Create Project</h1>
       </template>
       <template #search-input>
         <template></template>
-        <!-- <q-btn
-          class="mr-2"
-          flat
-          color="white"
-          text-color="grey-4"
-          icon="cancel"
-          label="Cancel"
-          @click="$router.push({ name: 'user', params: { tab: 'projects' } })"
-        />
-        <q-btn
-          class="mr-4 lg:mr-12"
-          color="white"
-          text-color="primary"
-          icon="save"
-          label="Save"
-          @click="saveChanges"
-          :disabled="!changes"
-        />-->
       </template>
     </app-toolbar>
   </q-header>
@@ -1134,72 +1020,34 @@ export default {
       <div class="flex items-center justify-start pt-4">
         <div class="image-container relative">
           <figure class="project-header-image pr-4">
-            <img
-              v-if="!newProject?.image?.path"
-              src="../assets/placeholder.png"
-              alt="App image"
-              class="placeholder-img"
-              width="150"
-            />
+            <img v-if="!newProject?.image?.path" src="../assets/placeholder.png" alt="App image" class="placeholder-img"
+              width="150" />
 
-            <img
-              v-else
-              :src="store.imageServerUrl + newProject.image.path + '?w=150'"
-              alt="Project image"
-            />
+            <img v-else :src="store.imageServerUrl + newProject.image.path + '?w=150'" alt="Project image" />
           </figure>
           <div class="image-actions hidden absolute bottom-1 left-1">
-            <q-btn
-              round
-              dense
-              color="grey-8"
-              size="sm"
-              icon="edit"
-              @click="editImageDialog.active = true"
-            >
+            <q-btn round dense color="grey-8" size="sm" icon="edit" @click="editImageDialog.active = true">
               <q-tooltip>Upload image</q-tooltip>
             </q-btn>
-            <q-btn
-              v-if="newProject?.image?.path"
-              round
-              dense
-              color="red-8"
-              size="sm"
-              icon="delete"
-              class="ml-1"
-              @click="deleteImageAction()"
-            >
+            <q-btn v-if="newProject?.image?.path" round dense color="red-8" size="sm" icon="delete" class="ml-1"
+              @click="deleteImageAction()">
               <q-tooltip>Delete image</q-tooltip>
             </q-btn>
           </div>
         </div>
-        <q-input
-          class="grow py-4"
-          v-model="newProject.name"
-          label="Name"
-          @update:model-value="handleFieldChanged($event, 'name')"
-        />
+        <q-input class="grow py-4" v-model="newProject.name" label="Name"
+          @update:model-value="handleFieldChanged($event, 'name')" />
       </div>
 
-      <q-input
-        class="py-2"
-        v-model="newProject.description"
-        label="Description"
-        type="textarea"
-        autogrow
-        @update:model-value="handleFieldChanged($event, 'description')"
-      />
+      <q-input class="py-2" v-model="newProject.description" label="Description" type="textarea" autogrow
+        @update:model-value="handleFieldChanged($event, 'description')" />
       <div class="flex flex-col md:flex-row flex-nowrap mt-2">
         <div class="mb-4 md:mb-0 md:pr-4">
           <q-list bordered class="rounded-borders">
             <q-select v-model="selectedBuilding" :options="buildings" label="Building" class="px-4">
               <template v-slot:option="scope">
-                <q-item
-                  clickable
-                  v-close-popup
-                  v-if="scope.opt.label === 'Create new Building'"
-                  @click.prevent="createBuildingAction()"
-                >
+                <q-item clickable v-close-popup v-if="scope.opt.label === 'Create new Building'"
+                  @click.prevent="createBuildingAction()">
                   <q-item-section avatar>
                     <q-icon name="add" />
                   </q-item-section>
@@ -1215,47 +1063,19 @@ export default {
                     <q-item-label>{{ scope.opt.label }}</q-item-label>
                   </q-item-section>
                   <q-item-section avatar class="flex flex-row">
-                    <q-btn
-                      flat
-                      rounded
-                      dense
-                      size="md"
-                      icon="edit"
-                      @click="editBuildingAction(scope.opt.value)"
-                    />
-                    <q-btn
-                      flat
-                      rounded
-                      dense
-                      size="md"
-                      icon="delete"
-                      @click.stop="removeBuilding(scope.opt.value)"
-                    />
+                    <q-btn flat rounded dense size="md" icon="edit" @click="editBuildingAction(scope.opt.value)" />
+                    <q-btn flat rounded dense size="md" icon="delete" @click.stop="removeBuilding(scope.opt.value)" />
                   </q-item-section>
                 </q-item>
               </template>
             </q-select>
-            <q-expansion-item
-              v-for="item in deviceGroups"
-              :key="item.id"
-              v-model="item.expanded.value"
-              :icon="item.icon"
-              :label="item.label"
-              expand-separator
-            >
+            <q-expansion-item v-for="item in deviceGroups" :key="item.id" v-model="item.expanded.value"
+              :icon="item.icon" :label="item.label" expand-separator>
               <q-list separator>
                 <template v-if="devices[item.value]">
-                  <q-item
-                    v-for="deviceData in devices[item.value]"
-                    clickable
-                    v-ripple
-                    :active="
-                      selectedDevice && selectedDevice.id === deviceData.id
-                    "
-                    :key="deviceData.id"
-                    @click="selectDevice(deviceData.id, item.value)"
-                    class="pl-8"
-                  >
+                  <q-item v-for="deviceData in devices[item.value]" clickable v-ripple :active="
+                    selectedDevice && selectedDevice.id === deviceData.id
+                  " :key="deviceData.id" @click="selectDevice(deviceData.id, item.value)" class="pl-8">
                     <q-item-section avatar class="flex-none">
                       <img src="../assets/BB-icon.png" alt="T3000" width="24" />
                     </q-item-section>
@@ -1265,33 +1085,13 @@ export default {
                       }}
                     </q-item-section>
                     <q-item-section avatar class="flex flex-row">
-                      <q-btn
-                        flat
-                        rounded
-                        dense
-                        size="md"
-                        icon="edit"
-                        @click="editDeviceAction(deviceData.id)"
-                      />
-                      <q-btn
-                        flat
-                        rounded
-                        dense
-                        size="md"
-                        icon="delete"
-                        @click.stop="removeDevice(deviceData.id)"
-                      />
+                      <q-btn flat rounded dense size="md" icon="edit" @click="editDeviceAction(deviceData.id)" />
+                      <q-btn flat rounded dense size="md" icon="delete" @click.stop="removeDevice(deviceData.id)" />
                     </q-item-section>
                   </q-item>
                 </template>
                 <div v-else class="text-center text-gray-300 pb-2">No data</div>
-                <q-item
-                  clickable
-                  v-ripple
-                  :active="false"
-                  @click="createDeviceAction(item.value)"
-                  class="pl-8"
-                >
+                <q-item clickable v-ripple :active="false" @click="createDeviceAction(item.value)" class="pl-8">
                   <q-item-section avatar>
                     <q-icon name="add" />
                   </q-item-section>
@@ -1301,17 +1101,10 @@ export default {
             </q-expansion-item>
           </q-list>
         </div>
-        <AppEditor
-          v-if="selectedDevice"
-          :app-data="selectedDevice"
-          @cell-changed="handleGridCellChanged($event)"
-          @rows-removed="handleGridRowsRemoved($event)"
-          @row-added="handleGridRowAdded($event)"
-        />
-        <div
-          v-else
-          class="flex items-center justify-center grow min-w-0 max-w-full"
-        >Select a device from the sidebar to show the data.</div>
+        <AppEditor v-if="selectedDevice" :app-data="selectedDevice" @cell-changed="handleGridCellChanged($event)"
+          @rows-removed="handleGridRowsRemoved($event)" @row-added="handleGridRowAdded($event)" />
+        <div v-else class="flex items-center justify-center grow min-w-0 max-w-full">Select a device from the sidebar to
+          show the data.</div>
       </div>
     </div>
   </q-page-container>
@@ -1321,6 +1114,7 @@ export default {
 .image-container:hover .image-actions {
   display: block !important;
 }
+
 .q-item__section--avatar {
   min-width: auto;
   padding-right: 7px;

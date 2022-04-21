@@ -30,7 +30,7 @@ export default {
         location.reload();
       });
     }
-    if (!store.user && $q.cookies.get("authorization")) {
+    if (!store.authenticated) {
       logout();
     }
     return {
@@ -62,7 +62,7 @@ export default {
       <slot name="desktop-menu">
         <div class="desktop-menu items-center q-px-md menu-items lg:flex">
           <template v-for="navItem in navItems" :key="navItem.label">
-            <router-link v-if="!navItem.requireAuth || (navItem.requireAuth && store.user)" exact class="
+            <router-link v-if="!navItem.requireAuth || (navItem.requireAuth && store.authenticated)" exact class="
                 text-gray-600
                 hover:bg-gray-700 hover:text-white
                 block
@@ -85,17 +85,15 @@ export default {
         </template>
       </q-input>
     </slot>
-    <template v-if="store.user">
+    <template v-if="store.authenticated">
       <q-btn flat round dense icon="notifications" class="mx-2" />
       <q-btn flat round dense class="mx-2">
         <q-avatar size="35px">
-          <img v-if="store.user.avatar" :src="store.user.avatar" />
-          <img v-else src="../assets/user-none.png" />
+          <img src="../assets/user-none.png" />
         </q-avatar>
         <q-menu>
           <q-list style="min-width: 200px">
-            <q-item-label header>{{ store.user.name }}</q-item-label>
-            <q-item clickable v-close-popup to="/account/settings">
+            <q-item clickable disable v-close-popup to="/settings">
               <q-item-section>Settings</q-item-section>
             </q-item>
             <q-separator />

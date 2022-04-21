@@ -2,7 +2,7 @@
   "name": "t3000-client",
   "version": "0.0.1",
   "description": "T3000 Client",
-  "productName": "Temco Controls - T3000 Client",
+  "productName": "T3000 Client - Temco Controls",
   "author": "Alaa Rihan <alaa.addeen@gmail.com>",
   "private": true,
   "scripts": {

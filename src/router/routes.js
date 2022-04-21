@@ -14,6 +14,7 @@ const routes = [
     children: [
       {
         path: "",
+        name: "home",
         component: () => import("../pages/Index.vue"),
         beforeEnter: isAuthenticated,
       },
