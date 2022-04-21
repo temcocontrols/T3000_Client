@@ -1,8 +1,8 @@
 import { useAppStore } from "stores/appStore";
 function isAuthenticated() {
   const store = useAppStore();
-  if (!store?.user?.id) {
-    window.location.href = `${process.env.SSO_LOGIN_URL}&redirect_uri=${window.location.origin}/auth?redirect=${window.location.pathname}`;
+  if (!store?.authenticated) {
+    window.location.href = `${window.location.origin}/login?redirect=${window.location.pathname}`;
     return false;
   }
   return true;
@@ -12,26 +12,10 @@ const routes = [
     path: "/",
     component: () => import("../layouts/MainLayout.vue"),
     children: [
-      { path: "", component: () => import("../pages/Index.vue") },
-      { path: "/auth", component: () => import("../pages/auth.vue") },
       {
-        path: "/account/settings",
-        component: () => import("../pages/AccountSettings.vue"),
+        path: "",
+        component: () => import("../pages/Index.vue"),
         beforeEnter: isAuthenticated,
-      },
-      {
-        name: "user",
-        path: "/user/:tab",
-        component: () => import("../pages/UserPage.vue"),
-        beforeEnter: isAuthenticated,
-      },
-      {
-        path: "/category/:slug",
-        component: () => import("../pages/AppCategoryPage.vue"),
-      },
-      {
-        path: "/app/:slug",
-        component: () => import("../pages/AppPage.vue"),
       },
       {
         path: "/project/:slug",
@@ -45,17 +29,6 @@ const routes = [
     component: () => import("../layouts/EmptyLayout.vue"),
     children: [
       {
-        name: "AppEdit",
-        path: "/app/:id/edit",
-        component: () => import("../pages/AppPageEdit.vue"),
-        beforeEnter: isAuthenticated,
-      },
-      {
-        path: "/app/create",
-        component: () => import("../pages/AppPageCreate.vue"),
-        beforeEnter: isAuthenticated,
-      },
-      {
         name: "ProjectEdit",
         path: "/project/:id/edit",
         component: () => import("../pages/ProjectPageEdit.vue"),
@@ -65,6 +38,10 @@ const routes = [
         path: "/project/create",
         component: () => import("../pages/ProjectPageCreate.vue"),
         beforeEnter: isAuthenticated,
+      },
+      {
+        path: "/login",
+        component: () => import("../pages/login.vue"),
       },
     ],
   },

@@ -3,7 +3,7 @@ import gridColumns from "./gridColumns";
 
 export const useAppStore = defineStore("app", {
   state: () => ({
-    user: JSON.parse(localStorage.getItem("user")) || null,
+    authenticated: JSON.parse(localStorage.getItem("authenticated")) || null,
     imageServerUrl: process.env.API_URL + "file/",
     gridColumns,
     columns: {
@@ -580,13 +580,13 @@ export const useAppStore = defineStore("app", {
   }),
   getters: {},
   actions: {
-    setUser(user) {
-      if (!user) {
-        localStorage.removeItem("user");
+    setAuthenticated(state) {
+      if (!state) {
+        localStorage.removeItem("authenticated");
       } else {
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("authenticated", state);
       }
-      this.user = user;
+      this.authenticated = state;
     },
   },
 });

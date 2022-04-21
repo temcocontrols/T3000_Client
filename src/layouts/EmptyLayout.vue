@@ -8,7 +8,7 @@
 <script>
 import { useMeta } from "quasar";
 import Footer from "../components/Footer.vue";
-const siteTitle = "Temco Controls - T3000 Online Database";
+const siteTitle = "T3000 Client - Temco Controls";
 const metaData = {
   title: "",
   titleTemplate: (title) => (title ? `${title} - ${siteTitle}` : siteTitle),

@@ -1,18 +1,9 @@
 <template>
   <q-layout view="hHh lpR fFf" class="flex flex-col">
     <q-header elevated class="bg-white text-black">
-      <app-toolbar
-        :nav-items="navItems"
-        @mobile-menu-btn-clicked="toggleLeftDrawer()"
-      ></app-toolbar>
+      <app-toolbar :nav-items="navItems" @mobile-menu-btn-clicked="toggleLeftDrawer()"></app-toolbar>
     </q-header>
-    <q-drawer
-      v-model="leftDrawerOpen"
-      side="left"
-      overlay
-      behavior="mobile"
-      elevated
-    >
+    <q-drawer v-model="leftDrawerOpen" side="left" overlay behavior="mobile" elevated>
       <q-scroll-area class="fit">
         <q-list>
           <template v-for="(navItem, index) in navItems" :key="index">
@@ -42,7 +33,7 @@ import { ref } from "vue";
 import { useMeta } from "quasar";
 import Footer from "../components/Footer.vue";
 import Toolbar from "../components/Toolbar.vue";
-const siteTitle = "Temco Controls - T3000 Online Database";
+const siteTitle = "T3000 Client - Temco Controls";
 const metaData = {
   title: "",
   titleTemplate: (title) => (title ? `${title} - ${siteTitle}` : siteTitle),
@@ -59,8 +50,6 @@ export default {
       },
       navItems: [
         { icon: "home", label: "Home", to: "/", separator: true },
-        // { icon: 'list', label: "My Projects", to: "/user/projects", requireAuth: true },
-        // { icon: 'list', label: "My Applications", to: "/user/apps", requireAuth: true },
       ],
     };
   },

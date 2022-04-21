@@ -22,8 +22,8 @@ const client = createClient({
     cacheExchange,
     authExchange({
       addAuthToOperation: ({ authState, operation }) => {
-        // the token isn't in the auth state, return the operation without changes
-        if (!authState || !authState.token) {
+        // the accessKey isn't in the auth state, return the operation without changes
+        if (!authState || !authState.accessKey) {
           return operation;
         }
 
@@ -35,13 +35,13 @@ const client = createClient({
 
         return makeOperation(operation.kind, operation, {
           ...operation.context,
-          fetchOptions: {
+          fetchOptions/* : {
             ...fetchOptions,
             headers: {
               ...fetchOptions.headers,
-              Authorization: authState.token,
+              access_key: authState.accessKey,
             },
-          },
+          },*/
         });
       },
       willAuthError: ({ authState }) => {
@@ -52,42 +52,21 @@ const client = createClient({
       didAuthError: ({ error }) => {
         // check if the error was an auth error (this can be implemented in various ways, e.g. 401 or a special error code)
         console.log(error);
-        if (
-          error.graphQLErrors.some((e) =>
-            e.message.startsWith(`Cannot query field "ssoLogin" on type`)
-          )
-        ) {
-          return false;
-        }
+
         if (error.graphQLErrors.some((e) => isAuthError(e))) {
-          Cookies.remove("authorization");
-          window.location.href = `${process.env.SSO_LOGIN_URL}&redirect_uri=${window.location.origin}/auth?redirect=${window.location.pathname}`;
+          Cookies.remove("access_key");
+          window.location.href = `${window.location.origin}/login?redirect=${window.location.pathname}`;
           return true;
         }
       },
       getAuth: async ({ authState, _mutate }) => {
         // for initial launch, fetch the auth state from storage (local storage, async storage etc)
         if (!authState) {
-          const token = Cookies.get("authorization");
-          if (token) {
-            return { token };
+          const accessKey = Cookies.get("access_key");
+          if (accessKey) {
+            return { accessKey };
           }
         }
-        /* 
-        const result = await mutate(` mutation {
-          refreshToken
-        }`);
-
-        console.log('refreshToken',result)
-
-        if (result.data?.refreshToken) {
-          const token = Cookies.get("authorization");
-          if (token) {
-            return { token };
-          }
-          return null;
-        } 
-        */
 
         return null;
       },

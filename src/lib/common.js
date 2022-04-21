@@ -1,9 +1,7 @@
 export function isAuthError(e) {
   return (
-    (!e.message.startsWith(`Cannot query field "ssoLogin" on type`) &&
-      e.message.startsWith("Cannot query field")) ||
-    e.message.startsWith("Invalid JWT token") ||
-    e.message.startsWith("Invalid refresh token") ||
+    e.message.startsWith("Unauthorized!") ||
+    e.message.startsWith("Invalid access key!") ||
     e.message.startsWith("Authorization error")
   );
 }
