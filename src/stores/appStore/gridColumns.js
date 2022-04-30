@@ -360,7 +360,7 @@ export default {
   ],
   programs: [
     {
-      colId: 0,
+      colId: -1,
       headerName: "",
       sortable: false,
       editable: false,
@@ -372,6 +372,14 @@ export default {
       valueFormatter: () => {
         return "";
       },
+    },
+    {
+      colId: 0,
+      headerName: "Code",
+      cellEditor: "CodeEditor",
+      cellEditorPopup: true,
+      sortable: true,
+      field: "sourceCode",
     },
     {
       colId: 1,

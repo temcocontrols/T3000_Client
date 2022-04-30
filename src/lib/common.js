@@ -54,6 +54,7 @@ variables (orderBy: {index: asc}) {
 }
 programs (orderBy: {index: asc}) {
   id
+  sourceCode
   index
   label
   fullLabel

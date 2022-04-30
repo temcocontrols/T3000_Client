@@ -8,9 +8,6 @@ export default {
   setup() {
     useMeta({ title: "Log in" });
     const store = useAppStore();
-    function loginTryAgain() {
-      window.location.href = `${process.env.SSO_LOGIN_URL}&redirect_uri=${window.location.origin}/auth`;
-    }
     const route = useRoute();
     const router = useRouter();
     const $q = useQuasar();
@@ -29,10 +26,10 @@ export default {
           logout
         }
       `);
-    async function logout() {
-      store.setUser(null);
-      await logoutMut.executeMutation();
-    }
+    /*  async function logout() {
+       store.setUser(null);
+       await logoutMut.executeMutation();
+     } */
 
     function login() {
       $q.loading.show({

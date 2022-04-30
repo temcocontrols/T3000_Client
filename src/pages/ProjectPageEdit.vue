@@ -27,10 +27,10 @@ export default {
     const store = useAppStore();
     const route = useRoute();
     const $q = useQuasar();
-    const id = computed(() => parseInt(route.params.id));
+    const id = computed(() => route.params.id);
     const projectQuery = useQuery({
       query: `
-        query ($id: Int){
+        query ($id: String){
           project(where: {id: $id}){
             id
             slug
@@ -77,6 +77,7 @@ export default {
             id: "new-1",
             title: "Default Building",
             devices: [],
+            _op: "create"
           });
         }
         if (selectedDevice.value?.id) {
@@ -592,7 +593,9 @@ export default {
     }
 
     function saveChanges() {
+      console.log("Changes before cleaning", changes.value)
       changes.value = cleanUpChanges(changes.value);
+      console.log("Changes after cleaning", changes.value)
       const query = { where: { id: id.value }, data: {} };
       query.data = buildQuery(changes.value, true);
       const loading = $q.notify({
@@ -1100,7 +1103,7 @@ export default {
       </template>
       <template #desktop-menu>
         <h1 class="truncate lg:border-l-2 border-solid text-2xl font-bold lg:ml-4 px-4">Edit Project: {{
-          project?.project?.name
+            project?.project?.name
         }}</h1>
       </template>
       <template #search-input>
@@ -1182,7 +1185,7 @@ export default {
                         </q-item-section>
                         <q-item-section class="grow">
                           {{
-                            deviceData.alias
+                              deviceData.alias
                           }}
                         </q-item-section>
                         <q-item-section avatar class="flex flex-row">

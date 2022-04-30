@@ -10,6 +10,7 @@ import ImageEditor from "./grid/ImageEditor.vue";
 import DatePicker from "./grid/DatePicker.vue";
 import YearCalendar from "./grid/YearCalendar.vue";
 import RangeEditor from "./grid/RangeEditor.vue";
+import CodeEditor from "./grid/CodeEditor.vue";
 
 export default {
   components: {
@@ -26,6 +27,8 @@ export default {
     YearCalendar,
     // eslint-disable-next-line vue/no-unused-components
     RangeEditor,
+    // eslint-disable-next-line vue/no-unused-components
+    CodeEditor,
   },
   props: {
     type: {
@@ -114,47 +117,32 @@ export default {
 <template>
   <div class="pb-2">
     <q-btn no-caps size="sm" color="grey-8" label="Add new row" @click="addNewRow()" />
-    <q-btn
-      v-if="selectedRows?.length"
-      class="ml-2"
-      no-caps
-      size="sm"
-      color="red-8"
-      label="Delete selected rows"
-      @click="removeSelected()"
-    />
+    <q-btn v-if="selectedRows?.length" class="ml-2" no-caps size="sm" color="red-8" label="Delete selected rows"
+      @click="removeSelected()" />
   </div>
-  <ag-grid-vue
-    style="width: 100%"
-    class="ag-theme-alpine-dark"
-    :columnDefs="columns"
-    :defaultColDef="{
+  <ag-grid-vue style="width: 100%" class="ag-theme-alpine-dark" :columnDefs="columns" :rowData="rows"
+    :rowHeight="rowHeight" rowSelection="multiple" :suppressRowClickSelection="true" :context="{ type, slug }"
+    @first-data-rendered="autoSizeAll" @cell-value-changed="$emit('cellChanged', $event)" @grid-ready="onGridReady"
+    @selection-changed="onSelectionChanged" :defaultColDef="{
       editable: true,
       // filter: 'agTextColumnFilter',
       resizable: true,
-    }"
-    :rowData="rows"
-    :rowHeight="rowHeight"
-    rowSelection="multiple"
-    :suppressRowClickSelection="true"
-    :context="{ type, slug }"
-    @first-data-rendered="autoSizeAll"
-    @cell-value-changed="$emit('cellChanged', $event)"
-    @grid-ready="onGridReady"
-    @selection-changed="onSelectionChanged"
-  ></ag-grid-vue>
+    }"></ag-grid-vue>
 </template>
 
 <style>
 .ag-theme-alpine-dark .ag-row {
   border: none;
 }
+
 .ag-theme-alpine-dark .ag-ltr .ag-cell {
   border-right: 1px solid rgba(255, 255, 255, 0.28);
 }
+
 .ag-theme-alpine-dark .ag-cell-inline-editing {
   height: 100%;
 }
+
 .ag-cell {
   display: flex;
   align-items: center;
@@ -163,6 +151,7 @@ export default {
 .ag-theme-alpine-dark .ag-root-wrapper {
   min-height: 150px;
 }
+
 .ag-cell[col-id="0"],
 .ag-header-cell[col-id="0"] {
   width: 55px !important;
