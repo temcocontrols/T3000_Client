@@ -356,7 +356,7 @@ export const useAppStore = defineStore("app", {
         },
         {
           name: 6,
-          label: "value",
+          label: "Value",
           align: "center",
           sortable: true,
           field: "value",
@@ -455,15 +455,8 @@ export const useAppStore = defineStore("app", {
           field: "autoManual",
         },
         {
-          name: 13,
-          label: "Panel",
-          align: "center",
-          sortable: true,
-          field: "panel",
-        },
-        {
           name: 14,
-          label: "value",
+          label: "Value",
           align: "center",
           sortable: true,
           field: "value",
@@ -563,7 +556,7 @@ export const useAppStore = defineStore("app", {
         },
         {
           name: 12,
-          label: "value",
+          label: "Value",
           align: "center",
           sortable: true,
           field: "value",

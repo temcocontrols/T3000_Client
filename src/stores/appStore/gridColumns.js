@@ -498,7 +498,7 @@ export default {
     },
     {
       colId: 6,
-      headerName: "value",
+      headerName: "Value",
       sortable: true,
       field: "value",
       cellEditor: "NumericEditor",
