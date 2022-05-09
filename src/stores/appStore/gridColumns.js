@@ -360,7 +360,7 @@ export default {
   ],
   programs: [
     {
-      colId: -1,
+      colId: 10,
       headerName: "",
       sortable: false,
       editable: false,
@@ -374,8 +374,12 @@ export default {
       },
     },
     {
-      colId: 0,
-      headerName: "Code",
+      colId: 11,
+      headerName: "Programming",
+      cellRenderer: "ButtonRenderer",
+      cellRendererParams: {
+        label: "Programming",
+      },
       cellEditor: "CodeEditor",
       cellEditorPopup: true,
       sortable: true,

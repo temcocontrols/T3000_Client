@@ -593,9 +593,7 @@ export default {
     }
 
     function saveChanges() {
-      console.log("Changes before cleaning", changes.value)
       changes.value = cleanUpChanges(changes.value);
-      console.log("Changes after cleaning", changes.value)
       const query = { where: { id: id.value }, data: {} };
       query.data = buildQuery(changes.value, true);
       const loading = $q.notify({
@@ -614,7 +612,6 @@ export default {
               icon: "done",
             });
             changes.value = null;
-            window.removeEventListener("beforeunload", beforeunloadHandeler);
           } else {
             console.log(res.error);
             $q.notify({
@@ -847,41 +844,6 @@ export default {
           // console.log('I am triggered on both OK and Cancel')
         });
     }
-
-    onBeforeRouteLeave((to, from) => {
-      if (shouldWarnLeave()) {
-        if (
-          window.confirm(
-            "Do you really want to leave? you have unsaved changes!"
-          )
-        ) {
-          return true;
-        }
-        return false;
-      }
-    });
-
-    function shouldWarnLeave() {
-      const cChanges = cleanUpChanges(changes.value);
-      if (cChanges) {
-        return true;
-      }
-      return false;
-    }
-
-    function beforeunloadHandeler(e) {
-      if (shouldWarnLeave()) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    }
-
-    onBeforeMount(() => {
-      window.addEventListener("beforeunload", beforeunloadHandeler);
-    });
-    onBeforeUnmount(() => {
-      window.removeEventListener("beforeunload", beforeunloadHandeler);
-    });
 
     return {
       store,

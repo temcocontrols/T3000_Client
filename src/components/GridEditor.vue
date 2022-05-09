@@ -11,6 +11,7 @@ import DatePicker from "./grid/DatePicker.vue";
 import YearCalendar from "./grid/YearCalendar.vue";
 import RangeEditor from "./grid/RangeEditor.vue";
 import CodeEditor from "./grid/CodeEditor.vue";
+import ButtonRenderer from "./grid/ButtonRenderer.vue";
 
 export default {
   components: {
@@ -29,6 +30,8 @@ export default {
     RangeEditor,
     // eslint-disable-next-line vue/no-unused-components
     CodeEditor,
+    // eslint-disable-next-line vue/no-unused-components
+    ButtonRenderer,
   },
   props: {
     type: {
@@ -85,7 +88,6 @@ export default {
     }
     function removeSelected() {
       const selectedData = gridApi.value.getSelectedRows();
-      console.log(selectedData);
       gridApi.value.applyTransaction({ remove: selectedData });
       ctx.emit("rowsRemoved", selectedData);
     }

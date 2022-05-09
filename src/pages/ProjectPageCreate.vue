@@ -539,7 +539,6 @@ export default {
               icon: "done",
             });
             changes.value = null;
-            window.removeEventListener("beforeunload", beforeunloadHandeler);
             router.push({
               name: "ProjectEdit",
               params: { id: res.data.createProject.id },
@@ -757,40 +756,6 @@ export default {
         });
     }
 
-    onBeforeRouteLeave((to, from) => {
-      if (shouldWarnLeave()) {
-        if (
-          window.confirm(
-            "Do you really want to leave? you have unsaved changes!"
-          )
-        ) {
-          return true;
-        }
-        return false;
-      }
-    });
-
-    function shouldWarnLeave() {
-      const cChanges = cleanUpChanges(changes.value);
-      if (cChanges) {
-        return true;
-      }
-      return false;
-    }
-
-    function beforeunloadHandeler(e) {
-      if (shouldWarnLeave()) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    }
-
-    onBeforeMount(() => {
-      window.addEventListener("beforeunload", beforeunloadHandeler);
-    });
-    onBeforeUnmount(() => {
-      window.removeEventListener("beforeunload", beforeunloadHandeler);
-    });
 
     return {
       store,
@@ -1081,7 +1046,7 @@ export default {
                     </q-item-section>
                     <q-item-section class="grow">
                       {{
-                        deviceData.alias
+                          deviceData.alias
                       }}
                     </q-item-section>
                     <q-item-section avatar class="flex flex-row">

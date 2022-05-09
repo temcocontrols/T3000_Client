@@ -1,7 +1,7 @@
 <script>
 import { ref, toRaw } from "vue";
-import { useMutation } from "@urql/vue";
 import { useQuasar } from "quasar";
+import interpretorFactory from "../../lib/t3-interpretor"
 import { PrismEditor } from "vue-prism-editor";
 import "vue-prism-editor/dist/prismeditor.min.css"; // import the styles somewhere
 import { highlight, languages } from "prismjs/components/prism-core";
@@ -25,11 +25,6 @@ export default {
       return toRaw(value.value);
     };
 
-    const compileProgram = useMutation(`
-        mutation ($code: String!){
-          compileProgram(code: $code)
-        }
-      `);
 
     function highlighter(code) {
       return highlight(code, languages.js); //returns html
@@ -41,27 +36,41 @@ export default {
       active: true,
       persistent: false,
       saveBtnDisabled: true,
+      compileBtnLoading: false,
       saveBtnLoading: false,
     });
 
-    function save() {
+    function save(compileOnly = false) {
       editCodeDialog.value.persistent = true;
-      editCodeDialog.value.saveBtnLoading = true;
-      compileProgram.executeMutation({ code: code.value }).then(async (res) => {
-        const errorCode = res.data?.compileProgram?.errorCode
+      if (!compileOnly) {
+        editCodeDialog.value.saveBtnLoading = true;
+      } else {
+        editCodeDialog.value.compileBtnLoading = true;
+      }
+      interpretorFactory().then((interpretor) => {
+        const encode_function_error = interpretor.cwrap('encode_function_error', 'number', ['string'])
+        const errorCode = encode_function_error(code.value)
         if (errorCode === -1) {
           $q.notify({
             message: "Program has been compiled successfully.",
             color: "primary",
             icon: "done",
           });
-          value.value = code.value
-          editCodeDialog.value.active = false;
-          editCodeDialog.value.persistent = false;
-          props.params.stopEditing();
+
+          editCodeDialog.value.saveBtnLoading = false;
+          editCodeDialog.value.compileBtnLoading = false;
+          if (!compileOnly) {
+            value.value = code.value
+            editCodeDialog.value.active = false;
+            editCodeDialog.value.persistent = false;
+            props.params.stopEditing();
+          }
         } else if (errorCode !== undefined && errorCode !== -1) {
+
+          editCodeDialog.value.saveBtnLoading = false;
+          editCodeDialog.value.compileBtnLoading = false;
           $q.notify({
-            message: "There is a problem in the program code!",
+            message: "There is a problem in the program code, it can't compile!",
             color: "negative",
             icon: "error",
           });
@@ -113,8 +122,10 @@ export default {
       </q-card-section>
 
       <q-card-actions align="between" class="text-primary">
+        <q-btn flat label="Cancel" @click="cancel()" />
         <div>
-          <q-btn flat label="Cancel" @click="cancel()" />
+          <q-btn :disabled="!code" :loading="editCodeDialog.compileBtnLoading" flat label="Compile"
+            @click="save(true)" />
           <q-btn :disabled="!code" :loading="editCodeDialog.saveBtnLoading" flat label="Save" @click="save()" />
         </div>
       </q-card-actions>
