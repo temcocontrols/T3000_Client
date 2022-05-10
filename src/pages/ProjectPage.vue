@@ -67,21 +67,15 @@ export default {
 
     const devices = computed(() => {
       if (!selectedBuilding.value?.value) return [];
-      const deviceData = projectQuery.data?.value?.project?.buildings?.find(
+      return projectQuery.data?.value?.project?.buildings?.find(
         (item) => item.id === selectedBuilding.value.value
-      )?.devices;
-      if (deviceData) {
-        return groupBy(deviceData, (item) => {
-          return item.connection;
-        });
-      }
-      return [];
+      )?.devices || [];
     });
 
     const selectedDevice = ref(null);
 
-    function selectDevice(id, connection) {
-      selectedDevice.value = devices.value[connection].find(
+    function selectDevice(id) {
+      selectedDevice.value = devices.value.find(
         (item) => item.id === id
       );
     }
@@ -106,29 +100,7 @@ export default {
       selectedDevice,
       selectDevice,
       selectedBuilding,
-      deviceGroups: [
-        {
-          id: 1,
-          label: "Local Network",
-          value: "LOCAL_NETWORK",
-          expanded: ref(true),
-          icon: "router",
-        },
-        {
-          id: 2,
-          label: "Serial Port",
-          value: "SERIAL_PORT",
-          expanded: ref(true),
-          icon: "settings_input_hdmi",
-        },
-        {
-          id: 3,
-          label: "Virtual Device",
-          value: "VIRTUAL_DEVICE",
-          expanded: ref(true),
-          icon: "disabled_visible",
-        },
-      ],
+      devicesExpanded: ref(true),
       isAuthError,
     };
   },
@@ -140,18 +112,9 @@ export default {
     <template v-if="project?.project">
       <div class="flex items-center justify-start pt-4">
         <figure class="project-header-image pr-4">
-          <img
-            v-if="!project?.project?.image"
-            src="../assets/placeholder.png"
-            alt="Project image"
-            class="placeholder-img"
-            width="150"
-          />
-          <img
-            v-else
-            :src="store.imageServerUrl + project.project.image.path + '?w=150'"
-            alt="Project image"
-          />
+          <img v-if="!project?.project?.image" src="../assets/placeholder.png" alt="Project image"
+            class="placeholder-img" width="150" />
+          <img v-else :src="store.imageServerUrl + project.project.image.path + '?w=150'" alt="Project image" />
         </figure>
         <h1 class="grow font-sans uppercase text-xl md:text-3xl font-bold py-4">
           {{ project.project.name }}
@@ -163,37 +126,17 @@ export default {
       <div class="flex flex-col md:flex-row flex-nowrap mt-2">
         <div class="mb-4 md:mb-0 md:pr-4">
           <q-list bordered class="rounded-borders">
-            <q-select
-              v-model="selectedBuilding"
-              :options="buildings"
-              label="Building"
-              class="px-4"
-            />
-            <q-expansion-item
-              v-for="item in deviceGroups"
-              :key="item.id"
-              v-model="item.expanded.value"
-              :icon="item.icon"
-              :label="item.label"
-              expand-separator
-            >
-              <q-list separator v-if="devices[item.value]">
-                <q-item
-                  v-for="deviceData in devices[item.value]"
-                  clickable
-                  v-ripple
-                  :active="
-                    selectedDevice && selectedDevice.id === deviceData.id
-                  "
-                  :key="deviceData.id"
-                  @click="selectDevice(deviceData.id, item.value)"
-                  class="pl-8"
-                >
+            <q-select v-model="selectedBuilding" :options="buildings" label="Building" class="px-4" />
+            <q-expansion-item v-model="devicesExpanded" icon="router" label="Devices" expand-separator>
+              <q-list separator v-if="devices">
+                <q-item v-for="deviceData in devices" clickable v-ripple :active="
+                  selectedDevice && selectedDevice.id === deviceData.id
+                " :key="deviceData.id" @click="selectDevice(deviceData.id)" class="pl-8">
                   <q-item-section avatar class="flex-none">
                     <img src="../assets/BB-icon.png" alt="T3000" width="24" />
                   </q-item-section>
                   <q-item-section class="grow">{{
-                    deviceData.alias
+                      deviceData.alias
                   }}</q-item-section>
                 </q-item>
               </q-list>
@@ -204,17 +147,12 @@ export default {
           </q-list>
         </div>
         <Application v-if="selectedDevice" :app-data="selectedDevice" />
-        <div
-          v-else
-          class="flex items-center justify-center grow min-w-0 max-w-full"
-        >
+        <div v-else class="flex items-center justify-center grow min-w-0 max-w-full">
           Select a device from the sidebar to show the data.
         </div>
       </div>
     </template>
-    <div
-      v-else
-      class="
+    <div v-else class="
         flex flex-col
         items-start
         bg-orange-100
@@ -222,9 +160,7 @@ export default {
         text-orange-700
         p-4
         mt-8
-      "
-      role="alert"
-    >
+      " role="alert">
       <template v-if="error && !isAuthError(error)">
         <p class="font-bold">Error!</p>
         <p>{{ error }}</p>
@@ -237,104 +173,27 @@ export default {
   </div>
   <div v-else>
     <div class="flex items-center justify-start pt-4">
-      <q-skeleton
-        square
-        width="150px"
-        height="100px"
-        animation="fade"
-        class="mr-4"
-      ></q-skeleton>
-      <q-skeleton
-        type="text"
-        square
-        width="150px"
-        height="40px"
-        animation="fade"
-        class="py-4"
-      ></q-skeleton>
+      <q-skeleton square width="150px" height="100px" animation="fade" class="mr-4"></q-skeleton>
+      <q-skeleton type="text" square width="150px" height="40px" animation="fade" class="py-4"></q-skeleton>
     </div>
-    <q-skeleton
-      type="text"
-      square
-      width="100%"
-      height="25px"
-      animation="fade"
-      class="mt-4"
-    ></q-skeleton>
-    <q-skeleton
-      type="text"
-      square
-      width="100%"
-      height="25px"
-      animation="fade"
-    ></q-skeleton>
+    <q-skeleton type="text" square width="100%" height="25px" animation="fade" class="mt-4"></q-skeleton>
+    <q-skeleton type="text" square width="100%" height="25px" animation="fade"></q-skeleton>
     <div class="row items-start no-wrap q-mt-sm">
-      <q-skeleton
-        width="20%"
-        height="300px"
-        square
-        animation="fade"
-      ></q-skeleton>
+      <q-skeleton width="20%" height="300px" square animation="fade"></q-skeleton>
 
       <div class="col q-pl-sm">
-        <q-skeleton
-          square
-          width="100%"
-          height="50px"
-          animation="fade"
-        ></q-skeleton>
-        <q-skeleton
-          type="text"
-          square
-          width="100%"
-          height="30px"
-          animation="fade"
-        ></q-skeleton>
-        <q-skeleton
-          type="text"
-          square
-          width="100%"
-          height="30px"
-          animation="fade"
-        ></q-skeleton>
-        <q-skeleton
-          type="text"
-          square
-          width="100%"
-          height="30px"
-          animation="fade"
-        ></q-skeleton>
-        <q-skeleton
-          type="text"
-          square
-          width="100%"
-          height="30px"
-          animation="fade"
-        ></q-skeleton>
-        <q-skeleton
-          type="text"
-          square
-          width="100%"
-          height="30px"
-          animation="fade"
-        ></q-skeleton>
-        <q-skeleton
-          type="text"
-          square
-          width="100%"
-          height="30px"
-          animation="fade"
-        ></q-skeleton>
-        <q-skeleton
-          type="text"
-          square
-          width="100%"
-          height="30px"
-          animation="fade"
-        ></q-skeleton>
+        <q-skeleton square width="100%" height="50px" animation="fade"></q-skeleton>
+        <q-skeleton type="text" square width="100%" height="30px" animation="fade"></q-skeleton>
+        <q-skeleton type="text" square width="100%" height="30px" animation="fade"></q-skeleton>
+        <q-skeleton type="text" square width="100%" height="30px" animation="fade"></q-skeleton>
+        <q-skeleton type="text" square width="100%" height="30px" animation="fade"></q-skeleton>
+        <q-skeleton type="text" square width="100%" height="30px" animation="fade"></q-skeleton>
+        <q-skeleton type="text" square width="100%" height="30px" animation="fade"></q-skeleton>
+        <q-skeleton type="text" square width="100%" height="30px" animation="fade"></q-skeleton>
       </div>
     </div>
   </div>
 </template>
 
-<style></style>
+<style>
+</style>

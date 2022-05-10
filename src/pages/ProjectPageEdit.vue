@@ -5,9 +5,7 @@ import {
   computed,
   ref,
   watchEffect,
-  watch,
-  onBeforeMount,
-  onBeforeUnmount,
+  watch
 } from "vue";
 import { useAppStore } from "stores/appStore";
 import { groupBy } from "lodash";
@@ -82,8 +80,7 @@ export default {
         }
         if (selectedDevice.value?.id) {
           selectDevice(
-            selectedDevice.value.id,
-            selectedDevice.value.connection
+            selectedDevice.value.id
           );
         }
       },
@@ -115,21 +112,15 @@ export default {
 
     const devices = computed(() => {
       if (!selectedBuilding.value?.value) return [];
-      const deviceData = projectClone.value?.project?.buildings?.find(
+      return projectClone.value?.project?.buildings?.find(
         (item) => item.id === selectedBuilding.value.value
-      )?.devices;
-      if (deviceData) {
-        return groupBy(deviceData, (item) => {
-          return item.connection;
-        });
-      }
-      return [];
+      )?.devices || [];
     });
 
     const selectedDevice = ref(null);
 
-    function selectDevice(id, connection) {
-      selectedDevice.value = devices.value[connection].find(
+    function selectDevice(id) {
+      selectedDevice.value = devices.value.find(
         (item) => item.id === id
       );
     }
@@ -385,9 +376,9 @@ export default {
       },
     });
 
-    function createDeviceAction(connection) {
+    function createDeviceAction() {
       createDeviceDialog.value.active = true;
-      createDeviceDialog.value.data.connection = connection;
+      createDeviceDialog.value.data.connection = "LOCAL_NETWORK";
     }
     function createDevice() {
       createDeviceDialog.value.createdCount += 1;
@@ -400,7 +391,7 @@ export default {
       projectClone.value.project.buildings[selectedBuildingIndex].devices.push(
         createDeviceDialog.value.data
       );
-      selectDevice(deviceId, createDeviceDialog.value.data.connection);
+      selectDevice(deviceId);
       prepareChange();
       changes.value.buildings[selectedBuildingIndex] = setChange(
         changes.value.buildings[selectedBuildingIndex],
@@ -468,7 +459,7 @@ export default {
         deviceIndex
       ] = cloneDeep(editDeviceDialog.value.data);
 
-      selectDevice(deviceId, editDeviceDialog.value.data.connection);
+      selectDevice(deviceId);
       prepareChange();
       changes.value.buildings[selectedBuildingIndex] = setChange(
         changes.value.buildings[selectedBuildingIndex],
@@ -863,29 +854,7 @@ export default {
       startUpload,
       cancelUpload,
       handleUploaded,
-      deviceGroups: [
-        {
-          id: 1,
-          label: "Local Network",
-          value: "LOCAL_NETWORK",
-          expanded: ref(true),
-          icon: "router",
-        },
-        {
-          id: 2,
-          label: "Serial Port",
-          value: "SERIAL_PORT",
-          expanded: ref(true),
-          icon: "settings_input_hdmi",
-        },
-        {
-          id: 3,
-          label: "Virtual Device",
-          value: "VIRTUAL_DEVICE",
-          expanded: ref(true),
-          icon: "disabled_visible",
-        },
-      ],
+      devicesExpanded: ref(true),
       isAuthError,
       createBuildingDialog,
       createBuildingAction,
@@ -1135,13 +1104,12 @@ export default {
                     </q-item>
                   </template>
                 </q-select>
-                <q-expansion-item v-for="item in deviceGroups" :key="item.id" v-model="item.expanded.value"
-                  :icon="item.icon" :label="item.label" expand-separator>
+                <q-expansion-item v-model="devicesExpanded" icon="router" label="Devices" expand-separator>
                   <q-list separator>
-                    <template v-if="devices[item.value]">
-                      <q-item v-for="deviceData in devices[item.value]" clickable v-ripple :active="
+                    <template v-if="devices?.length">
+                      <q-item v-for="deviceData in devices" clickable v-ripple :active="
                         selectedDevice && selectedDevice.id === deviceData.id
-                      " :key="deviceData.id" @click="selectDevice(deviceData.id, item.value)" class="pl-8">
+                      " :key="deviceData.id" @click="selectDevice(deviceData.id)" class="pl-8">
                         <q-item-section avatar class="flex-none">
                           <img src="../assets/BB-icon.png" alt="T3000" width="24" />
                         </q-item-section>
@@ -1156,8 +1124,8 @@ export default {
                         </q-item-section>
                       </q-item>
                     </template>
-                    <div v-else class="text-center text-gray-300 pb-2">No data</div>
-                    <q-item clickable v-ripple :active="false" @click="createDeviceAction(item.value)" class="pl-8">
+                    <div v-else class="text-center text-gray-300 pb-2">No devices</div>
+                    <q-item clickable v-ripple :active="false" @click="createDeviceAction()" class="pl-8">
                       <q-item-section avatar>
                         <q-icon name="add" />
                       </q-item-section>
