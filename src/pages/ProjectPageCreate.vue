@@ -5,11 +5,8 @@ import {
   computed,
   ref,
   watchEffect,
-  onBeforeMount,
-  onBeforeUnmount,
 } from "vue";
 import { useAppStore } from "stores/appStore";
-import { groupBy } from "lodash";
 import { useMeta, useQuasar } from "quasar";
 import { cloneDeep } from "lodash";
 import AppEditor from "src/components/AppEditor.vue";
@@ -66,15 +63,9 @@ export default {
 
     const devices = computed(() => {
       if (!selectedBuilding.value?.value) return [];
-      const deviceData = newProject.value?.buildings?.find(
+      return newProject.value?.buildings?.find(
         (item) => item.id === selectedBuilding.value.value
       )?.devices;
-      if (deviceData) {
-        return groupBy(deviceData, (item) => {
-          return item.connection;
-        });
-      }
-      return [];
     });
 
     const selectedDevice = ref(null);
@@ -959,7 +950,7 @@ export default {
   </q-header>
 
   <q-page-container class="flex-1">
-    <div class="container mx-auto px-4">
+    <div class="px-8">
       <div class="flex items-center justify-start pt-4">
         <div class="image-container relative">
           <figure class="project-header-image pr-4">
@@ -1012,7 +1003,7 @@ export default {
                 </q-item>
               </template>
             </q-select>
-            <q-expansion-item v-model="devicesExpanded" icon="router" label="Devices" expand-separator>
+            <q-expansion-item v-model="devicesExpanded" icon="developer_board" label="Devices" expand-separator>
               <q-list separator>
                 <template v-if="devices">
                   <q-item v-for="deviceData in devices" clickable v-ripple :active="

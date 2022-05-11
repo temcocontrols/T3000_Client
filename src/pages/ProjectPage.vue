@@ -3,7 +3,6 @@ import { useQuery } from "@urql/vue";
 import { useRoute } from "vue-router";
 import { computed, ref, watchEffect } from "vue";
 import { useAppStore } from "stores/appStore";
-import { groupBy } from "lodash";
 import { useMeta } from "quasar";
 import Application from "src/components/Application.vue";
 import { isAuthError, appNestedFields } from "../lib/common";
@@ -127,7 +126,7 @@ export default {
         <div class="mb-4 md:mb-0 md:pr-4">
           <q-list bordered class="rounded-borders">
             <q-select v-model="selectedBuilding" :options="buildings" label="Building" class="px-4" />
-            <q-expansion-item v-model="devicesExpanded" icon="router" label="Devices" expand-separator>
+            <q-expansion-item v-model="devicesExpanded" icon="developer_board" label="Devices" expand-separator>
               <q-list separator v-if="devices">
                 <q-item v-for="deviceData in devices" clickable v-ripple :active="
                   selectedDevice && selectedDevice.id === deviceData.id

@@ -8,7 +8,6 @@ import {
   watch
 } from "vue";
 import { useAppStore } from "stores/appStore";
-import { groupBy } from "lodash";
 import { useMeta, useQuasar } from "quasar";
 import { cloneDeep } from "lodash";
 import AppEditor from "src/components/AppEditor.vue";
@@ -659,6 +658,24 @@ export default {
       if (!changes) return changes;
       if (!Array.isArray(changes)) {
         for (const key in changes) {
+          let keyHasObjects = false;
+          for (const k in changes[key]) {
+            if (
+              changes[key][k] &&
+              typeof changes[key][k] === "object" &&
+              !(changes[key][k] instanceof Date) &&
+              !(
+                Array.isArray(changes[key][k]) &&
+                changes[key][k].length > 0 &&
+                (typeof changes[key][k][0] !== "object" ||
+                  (!changes[key][k][0].__typename && !changes[key][k][0]._op))
+              )
+            ) {
+              keyHasObjects = true;
+              break;
+            }
+          }
+
           if (Array.isArray(changes[key]) && changes[key].length === 0) {
             delete changes[key];
           } else if (
@@ -674,7 +691,7 @@ export default {
             changes[key] &&
             typeof changes[key] === "object" &&
             !Array.isArray(changes[key]) &&
-            !changes[key].__typename &&
+            !keyHasObjects &&
             !changes[key]._op
           ) {
             delete changes[key];
@@ -718,6 +735,8 @@ export default {
       if (Object.keys(changes).length === 0) {
         changes = null;
       }
+
+      console.log(changes)
 
       return changes;
     }
@@ -777,7 +796,7 @@ export default {
               where: { id: changes[key].id },
               data: {},
             };
-            queryData[key][op][data] = buildQuery(changes[key], true);
+            queryData[key][op].data = buildQuery(changes[key], true);
           } else {
             queryData[key][op] = buildQuery(changes[key], true);
           }
@@ -836,6 +855,29 @@ export default {
         });
     }
 
+    function deleteBuildingAction(id) {
+      $q.dialog({
+        title: "Delete Building",
+        message: "Are you sure you want to delete this building with all its devices data?",
+        ok: {
+          label: "Delete",
+          color: "red-8",
+          flat: true,
+        },
+        cancel: true,
+        persistent: true,
+      })
+        .onOk(() => {
+          removeBuilding(id)
+        })
+        .onCancel(() => {
+          // console.log('>>>> Cancel')
+        })
+        .onDismiss(() => {
+          // console.log('I am triggered on both OK and Cancel')
+        });
+    }
+
     return {
       store,
       project: projectQuery.data,
@@ -877,6 +919,7 @@ export default {
       handleGridRowsRemoved,
       handleGridRowAdded,
       handleFieldChanged,
+      deleteBuildingAction
     };
   },
 };
@@ -1044,7 +1087,7 @@ export default {
   </q-header>
 
   <q-page-container class="flex-1">
-    <div class="container mx-auto px-4">
+    <div class="px-8">
       <div v-if="!fetching">
         <template v-if="projectClone?.project">
           <div class="flex items-center justify-start pt-4">
@@ -1076,40 +1119,54 @@ export default {
           <q-input class="py-2" v-model="projectClone.project.description" label="Description" type="textarea" autogrow
             @update:model-value="handleFieldChanged($event, 'description')" />
           <div class="flex flex-col md:flex-row flex-nowrap mt-2">
-            <div class="mb-4 md:mb-0 md:pr-4">
+            <div class="side-bar mb-4 md:mb-0 md:pr-4 flex-1">
               <q-list bordered class="rounded-borders">
-                <q-select v-model="selectedBuilding" :options="buildings" label="Building" class="px-4">
-                  <template v-slot:option="scope">
-                    <q-item clickable v-close-popup v-if="scope.opt.label === 'Create new Building'"
-                      @click.prevent="createBuildingAction()">
-                      <q-item-section avatar>
-                        <q-icon name="add" />
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>{{ scope.opt.label }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item v-bind="scope.itemProps" v-else>
-                      <q-item-section avatar>
-                        <q-icon name="apartment" />
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label>{{ scope.opt.label }}</q-item-label>
-                      </q-item-section>
-                      <q-item-section avatar class="flex flex-row">
-                        <q-btn flat rounded dense size="md" icon="edit" @click="editBuildingAction(scope.opt.value)" />
-                        <q-btn flat rounded dense size="md" icon="delete"
-                          @click.stop="removeBuilding(scope.opt.value)" />
-                      </q-item-section>
-                    </q-item>
-                  </template>
-                </q-select>
-                <q-expansion-item v-model="devicesExpanded" icon="router" label="Devices" expand-separator>
+                <div class="flex flex-nowrap">
+                  <q-select v-model="selectedBuilding" :options="buildings" label="Building" class="grow pl-2">
+                    <template v-slot:option="scope">
+                      <q-item clickable v-close-popup v-if="scope.opt.label === 'Create new Building'"
+                        @click.prevent="createBuildingAction()">
+                        <q-item-section avatar>
+                          <q-icon name="add" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>{{ scope.opt.label }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-bind="scope.itemProps" v-else>
+                        <q-item-section avatar>
+                          <q-icon name="apartment" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>{{ scope.opt.label }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-select>
+                  <q-btn color="white" text-color="black" icon="more_vert" flat dense class="px-2">
+                    <q-menu>
+                      <q-list style="min-width: 100px">
+                        <q-item clickable v-close-popup @click="createBuildingAction()">
+                          <q-item-section>Create new Building</q-item-section>
+                        </q-item>
+                        <q-separator />
+                        <q-item clickable v-close-popup @click="editBuildingAction(selectedBuilding.value)">
+                          <q-item-section>Edit Building</q-item-section>
+                        </q-item>
+                        <q-separator />
+                        <q-item clickable v-close-popup @click="deleteBuildingAction(selectedBuilding.value)">
+                          <q-item-section>Delete Building</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </div>
+                <q-expansion-item v-model="devicesExpanded" icon="developer_board" label="Devices" expand-separator>
                   <q-list separator>
                     <template v-if="devices?.length">
                       <q-item v-for="deviceData in devices" clickable v-ripple :active="
                         selectedDevice && selectedDevice.id === deviceData.id
-                      " :key="deviceData.id" @click="selectDevice(deviceData.id)" class="pl-8">
+                      " :key="deviceData.id" @click="selectDevice(deviceData.id)" class="pl-8 pr-0">
                         <q-item-section avatar class="flex-none">
                           <img src="../assets/BB-icon.png" alt="T3000" width="24" />
                         </q-item-section>
@@ -1118,9 +1175,26 @@ export default {
                               deviceData.alias
                           }}
                         </q-item-section>
-                        <q-item-section avatar class="flex flex-row">
-                          <q-btn flat rounded dense size="md" icon="edit" @click="editDeviceAction(deviceData.id)" />
-                          <q-btn flat rounded dense size="md" icon="delete" @click.stop="removeDevice(deviceData.id)" />
+                        <q-item-section avatar>
+                          <q-btn color="white" text-color="grey-8" icon="more_vert" flat dense class="px-2">
+                            <q-menu>
+                              <q-list style="min-width: 100px">
+                                <q-item clickable v-close-popup @click="editDeviceAction(deviceData.id)">
+                                  <q-item-section avatar>
+                                    <q-icon color="primary" name="edit" />
+                                  </q-item-section>
+                                  <q-item-section>Edit Device Config</q-item-section>
+                                </q-item>
+                                <q-separator />
+                                <q-item clickable v-close-popup @click="removeDevice(deviceData.id)">
+                                  <q-item-section avatar>
+                                    <q-icon color="primary" name="delete" />
+                                  </q-item-section>
+                                  <q-item-section>Delete Device</q-item-section>
+                                </q-item>
+                              </q-list>
+                            </q-menu>
+                          </q-btn>
                         </q-item-section>
                       </q-item>
                     </template>
@@ -1135,7 +1209,7 @@ export default {
                 </q-expansion-item>
               </q-list>
             </div>
-            <AppEditor v-if="selectedDevice" :app-data="selectedDevice" type="Project"
+            <app-editor v-if="selectedDevice" :app-data="selectedDevice" type="Project"
               :slug="projectClone?.project?.slug" @cell-changed="handleGridCellChanged($event)"
               @rows-removed="handleGridRowsRemoved($event)" @row-added="handleGridRowAdded($event)" />
             <div v-else class="flex items-center justify-center grow min-w-0 max-w-full">Select a device from the
@@ -1189,5 +1263,10 @@ export default {
 .q-item__section--avatar {
   min-width: auto;
   padding-right: 7px;
+}
+
+.side-bar {
+  min-width: 260px;
+  max-width: 260px;
 }
 </style>
