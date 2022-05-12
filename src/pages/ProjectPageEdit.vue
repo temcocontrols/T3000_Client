@@ -1,12 +1,7 @@
 <script>
 import { useQuery, useMutation } from "@urql/vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
-import {
-  computed,
-  ref,
-  watchEffect,
-  watch
-} from "vue";
+import { computed, ref, watchEffect, watch, toRaw } from "vue";
 import { useAppStore } from "stores/appStore";
 import { useMeta, useQuasar } from "quasar";
 import { cloneDeep } from "lodash";
@@ -25,6 +20,7 @@ export default {
     const route = useRoute();
     const $q = useQuasar();
     const id = computed(() => route.params.id);
+    const pauseQuery = ref(false);
     const projectQuery = useQuery({
       query: `
         query ($id: String){
@@ -40,7 +36,7 @@ export default {
             buildings{
               id
               title
-              devices {
+              devices ( orderBy: { createdAt: asc } ) {
                 id
                 productType
                 alias
@@ -52,7 +48,7 @@ export default {
         }
       `,
       variables: { id },
-      pause: computed(() => !id.value),
+      pause: computed(() => !id.value || pauseQuery.value),
     });
 
     const updateMutation = useMutation(`
@@ -68,20 +64,27 @@ export default {
     watch(
       () => projectQuery.data,
       () => {
-        projectClone.value = cloneDeep(projectQuery.data.value);
+        projectClone.value = cloneDeep(toRaw(projectQuery.data.value));
         if (projectClone.value?.project?.buildings?.length < 1) {
           projectClone.value.project.buildings.push({
             id: "new-1",
             title: "Default Building",
             devices: [],
-            _op: "create"
+            _op: "create",
           });
         }
-        if (selectedDevice.value?.id) {
-          selectDevice(
-            selectedDevice.value.id
-          );
+        if (
+          selectedDevice.value?.id &&
+          projectClone.value?.project?.buildings[0].devices.find(
+            (d) => d.id === selectedDevice.value.id
+          )
+        ) {
+          selectDevice(selectedDevice.value.id);
+        } else if (projectClone.value?.project?.buildings[0].devices?.length) {
+          selectedDevice.value =
+            projectClone.value?.project?.buildings[0].devices[0];
         }
+        pauseQuery.value = true;
       },
       { deep: true }
     );
@@ -111,17 +114,18 @@ export default {
 
     const devices = computed(() => {
       if (!selectedBuilding.value?.value) return [];
-      return projectClone.value?.project?.buildings?.find(
-        (item) => item.id === selectedBuilding.value.value
-      )?.devices || [];
+      return (
+        projectClone.value?.project?.buildings?.find(
+          (item) => item.id === selectedBuilding.value.value
+        )?.devices || []
+      );
     });
 
     const selectedDevice = ref(null);
 
     function selectDevice(id) {
-      selectedDevice.value = devices.value.find(
-        (item) => item.id === id
-      );
+      pauseQuery.value = false;
+      selectedDevice.value = devices.value.find((item) => item.id === id);
     }
 
     const pageTitle = computed(() => {
@@ -314,6 +318,29 @@ export default {
       editBuildingDialog.value.active = false;
       editBuildingDialog.value.data = {};
     }
+    function deleteBuildingAction(id) {
+      $q.dialog({
+        title: "Delete Building",
+        message:
+          "Are you sure you want to delete this building with all its devices data?",
+        ok: {
+          label: "Delete",
+          color: "red-8",
+          flat: true,
+        },
+        cancel: true,
+        persistent: true,
+      })
+        .onOk(() => {
+          removeBuilding(id);
+        })
+        .onCancel(() => {
+          // console.log('>>>> Cancel')
+        })
+        .onDismiss(() => {
+          // console.log('I am triggered on both OK and Cancel')
+        });
+    }
 
     function removeBuilding(id) {
       const buildingIndex = projectClone.value.project.buildings.findIndex(
@@ -329,13 +356,7 @@ export default {
       projectClone.value.project.buildings.splice(buildingIndex, 1);
     }
 
-    const productTypes = [
-      "T3-BB",
-      "T3-LB",
-      "T3-TB",
-      "T3-Nano",
-      "Tstat10",
-    ];
+    const productTypes = ["T3-BB", "T3-LB", "T3-TB", "T3-Nano", "Tstat10"];
 
     function filterProductTypes(val, update) {
       if (val === "") {
@@ -388,16 +409,16 @@ export default {
           (item) => item.id === selectedBuilding.value.value
         );
       projectClone.value.project.buildings[selectedBuildingIndex].devices.push(
-        createDeviceDialog.value.data
+        cloneDeep(toRaw(createDeviceDialog.value.data))
       );
-      selectDevice(deviceId);
       prepareChange();
       changes.value.buildings[selectedBuildingIndex] = setChange(
         changes.value.buildings[selectedBuildingIndex],
         "devices",
-        createDeviceDialog.value.data,
+        toRaw(createDeviceDialog.value.data),
         "create"
       );
+      selectDevice(deviceId);
       saveChanges();
       createDeviceDialog.value.active = false;
       createDeviceDialog.value.data = {
@@ -478,6 +499,30 @@ export default {
         holidays: [],
         schedules: [],
       };
+    }
+
+    function deleteDeviceAction(id) {
+      $q.dialog({
+        title: "Delete Device",
+        message:
+          "Are you sure you want to delete this device with all its data?",
+        ok: {
+          label: "Delete",
+          color: "red-8",
+          flat: true,
+        },
+        cancel: true,
+        persistent: true,
+      })
+        .onOk(() => {
+          removeDevice(id);
+        })
+        .onCancel(() => {
+          // console.log('>>>> Cancel')
+        })
+        .onDismiss(() => {
+          // console.log('I am triggered on both OK and Cancel')
+        });
     }
 
     function removeDevice(id) {
@@ -578,14 +623,16 @@ export default {
             "delete"
           );
       }
-      changes.value = cloneDeep(changes.value);
+      changes.value = cloneDeep(toRaw(changes.value));
       saveChanges();
     }
 
     function saveChanges() {
       changes.value = cleanUpChanges(changes.value);
+      const changesCache = cloneDeep(toRaw(changes.value));
+      changes.value = null;
       const query = { where: { id: id.value }, data: {} };
-      query.data = buildQuery(changes.value, true);
+      query.data = buildQuery(changesCache, true);
       const loading = $q.notify({
         spinner: true,
         message: "Saving...",
@@ -601,8 +648,10 @@ export default {
               color: "primary",
               icon: "done",
             });
-            changes.value = null;
           } else {
+            if (!changes.value) {
+              changes.value = cloneDeep(changesCache);
+            }
             console.log(res.error);
             $q.notify({
               message: "Error: Project couldn't be saved!",
@@ -623,6 +672,9 @@ export default {
           }
         })
         .catch((e) => {
+          if (!changes.value) {
+            changes.value = cloneDeep(changesCache);
+          }
           $q.notify({
             message: `Error: Project couldn't be saved!, ${e}`,
             color: "negative",
@@ -735,8 +787,6 @@ export default {
       if (Object.keys(changes).length === 0) {
         changes = null;
       }
-
-      console.log(changes)
 
       return changes;
     }
@@ -854,30 +904,6 @@ export default {
           // console.log('I am triggered on both OK and Cancel')
         });
     }
-
-    function deleteBuildingAction(id) {
-      $q.dialog({
-        title: "Delete Building",
-        message: "Are you sure you want to delete this building with all its devices data?",
-        ok: {
-          label: "Delete",
-          color: "red-8",
-          flat: true,
-        },
-        cancel: true,
-        persistent: true,
-      })
-        .onOk(() => {
-          removeBuilding(id)
-        })
-        .onCancel(() => {
-          // console.log('>>>> Cancel')
-        })
-        .onDismiss(() => {
-          // console.log('I am triggered on both OK and Cancel')
-        });
-    }
-
     return {
       store,
       project: projectQuery.data,
@@ -919,7 +945,8 @@ export default {
       handleGridRowsRemoved,
       handleGridRowAdded,
       handleFieldChanged,
-      deleteBuildingAction
+      deleteBuildingAction,
+      deleteDeviceAction,
     };
   },
 };
@@ -1076,9 +1103,9 @@ export default {
           @click="$router.push({ name: 'home' })" />
       </template>
       <template #desktop-menu>
-        <h1 class="truncate lg:border-l-2 border-solid text-2xl font-bold lg:ml-4 px-4">Edit Project: {{
-            project?.project?.name
-        }}</h1>
+        <h1 class="truncate lg:border-l-2 border-solid text-2xl font-bold lg:ml-4 px-4">
+          Edit Project: {{ project?.project?.name }}
+        </h1>
       </template>
       <template #search-input>
         <template></template>
@@ -1171,9 +1198,7 @@ export default {
                           <img src="../assets/BB-icon.png" alt="T3000" width="24" />
                         </q-item-section>
                         <q-item-section class="grow">
-                          {{
-                              deviceData.alias
-                          }}
+                          {{ deviceData.alias }}
                         </q-item-section>
                         <q-item-section avatar>
                           <q-btn color="white" text-color="grey-8" icon="more_vert" flat dense class="px-2">
@@ -1186,7 +1211,7 @@ export default {
                                   <q-item-section>Edit Device Config</q-item-section>
                                 </q-item>
                                 <q-separator />
-                                <q-item clickable v-close-popup @click="removeDevice(deviceData.id)">
+                                <q-item clickable v-close-popup @click="deleteDeviceAction(deviceData.id)">
                                   <q-item-section avatar>
                                     <q-icon color="primary" name="delete" />
                                   </q-item-section>
@@ -1198,7 +1223,9 @@ export default {
                         </q-item-section>
                       </q-item>
                     </template>
-                    <div v-else class="text-center text-gray-300 pb-2">No devices</div>
+                    <div v-else class="text-center text-gray-300 pb-2">
+                      No devices
+                    </div>
                     <q-item clickable v-ripple :active="false" @click="createDeviceAction()" class="pl-8">
                       <q-item-section avatar>
                         <q-icon name="add" />
@@ -1212,8 +1239,9 @@ export default {
             <app-editor v-if="selectedDevice" :app-data="selectedDevice" type="Project"
               :slug="projectClone?.project?.slug" @cell-changed="handleGridCellChanged($event)"
               @rows-removed="handleGridRowsRemoved($event)" @row-added="handleGridRowAdded($event)" />
-            <div v-else class="flex items-center justify-center grow min-w-0 max-w-full">Select a device from the
-              sidebar to show the data.</div>
+            <div v-else class="flex items-center justify-center grow min-w-0 max-w-full">
+              Select a device from the sidebar to show the data.
+            </div>
           </div>
         </template>
         <div v-else
@@ -1237,7 +1265,7 @@ export default {
         <q-skeleton type="text" square width="100%" height="25px" animation="fade" class="mt-4"></q-skeleton>
         <q-skeleton type="text" square width="100%" height="25px" animation="fade"></q-skeleton>
         <div class="row items-start no-wrap q-mt-sm">
-          <q-skeleton width="20%" height="300px" square animation="fade"></q-skeleton>
+          <q-skeleton width="250px" height="300px" square animation="fade"></q-skeleton>
 
           <div class="col q-pl-sm">
             <q-skeleton square width="100%" height="50px" animation="fade"></q-skeleton>
