@@ -233,10 +233,10 @@ export default {
           <q-skeleton square width="25%" height="55px" animation="fade" class="mb-4"></q-skeleton>
           <q-skeleton square width="20%" height="45px" animation="fade" class="mb-4"></q-skeleton>
         </div>
-        <div class="grid gap-8 grid-cols-2 lg:grid-cols-5 mb-2">
+        <div class="grid gap-8 grid-cols-2 lg:grid-cols-4 mb-2">
           <div v-for="n in 5" :key="n">
-            <q-skeleton square width="100%" height="150px" animation="fade"></q-skeleton>
-            <q-skeleton type="text" square width="100%" height="30px" animation="fade"></q-skeleton>
+            <q-skeleton square width="100%" height="180px" animation="fade"></q-skeleton>
+            <q-skeleton type="text" square width="100%" height="40px" animation="fade"></q-skeleton>
           </div>
         </div>
       </div>

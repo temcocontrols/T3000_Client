@@ -97,11 +97,11 @@ export default {
       removeSelected,
       selectedRows,
       autoSizeAll(params) {
-        const allColumnIds = [];
-        params.columnApi.getAllColumns().forEach((column) => {
-          allColumnIds.push(column.getId());
-        });
-        params.columnApi.autoSizeColumns(allColumnIds, false);
+        /*  const allColumnIds = [];
+         params.columnApi.getAllColumns().forEach((column) => {
+           allColumnIds.push(column.getId());
+         }); */
+        params.columnApi.autoSizeAllColumns(false);
         params.api.setDomLayout("autoHeight");
       },
       gridApi,

@@ -25,11 +25,7 @@ export default {
     <router-link :to="path + app.slug">
       <div>
         <img v-if="!app.image" src="../assets/placeholder.png" alt />
-        <img
-          v-else
-          :src="imageServerUrl + app.image.path + '?w=208&h=139'"
-          alt
-        />
+        <img v-else :src="imageServerUrl + app.image.path + '?w=272&h=181'" alt />
       </div>
 
       <div class="py-2">{{ app.name }}</div>
