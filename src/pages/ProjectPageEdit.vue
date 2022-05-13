@@ -124,7 +124,6 @@ export default {
     const selectedDevice = ref(null);
 
     function selectDevice(id) {
-      pauseQuery.value = false;
       selectedDevice.value = devices.value.find((item) => item.id === id);
     }
 
@@ -198,6 +197,7 @@ export default {
       createBuildingDialog.value.active = true;
     }
     function createBuilding() {
+      pauseQuery.value = false;
       createBuildingDialog.value.createdCount += 1;
       const buildingId = `new-${createBuildingDialog.value.createdCount}`;
       createBuildingDialog.value.data.id = buildingId;
@@ -401,6 +401,7 @@ export default {
       createDeviceDialog.value.data.connection = "LOCAL_NETWORK";
     }
     function createDevice() {
+      pauseQuery.value = false;
       createDeviceDialog.value.createdCount += 1;
       const deviceId = `new-${createDeviceDialog.value.createdCount}`;
       createDeviceDialog.value.data.id = deviceId;
