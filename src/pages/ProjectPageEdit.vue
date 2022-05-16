@@ -1,10 +1,10 @@
 <script>
 import { useQuery, useMutation } from "@urql/vue";
-import { useRoute, onBeforeRouteLeave } from "vue-router";
+import { useRoute } from "vue-router";
 import { computed, ref, watchEffect, watch, toRaw } from "vue";
 import { useAppStore } from "stores/appStore";
 import { useMeta, useQuasar } from "quasar";
-import { cloneDeep, debounce } from "lodash";
+import { cloneDeep, debounce, throttle } from "lodash";
 import AppEditor from "src/components/AppEditor.vue";
 import Toolbar from "../components/Toolbar.vue";
 import FileUpload from "src/components/FileUpload.vue";
@@ -177,7 +177,7 @@ export default {
       changes.value.image._connect = true;
       editImageDialog.value.persistent = false;
       editImageDialog.value.uploadBtnLoading = false;
-      saveChanges();
+      throttledSaveChanges();
     }
 
     const createBuildingDialog = ref({
@@ -214,7 +214,7 @@ export default {
         createBuildingDialog.value.data,
         "create"
       );
-      saveChanges();
+      throttledSaveChanges();
       createBuildingDialog.value.active = false;
       createBuildingDialog.value.data = { protocol: "AUTO", devices: [] };
     }
@@ -314,7 +314,7 @@ export default {
         editBuildingDialog.value.data,
         "update"
       );
-      saveChanges();
+      throttledSaveChanges();
       editBuildingDialog.value.active = false;
       editBuildingDialog.value.data = {};
     }
@@ -352,7 +352,7 @@ export default {
         projectClone.value.project.buildings[buildingIndex],
         "delete"
       );
-      saveChanges();
+      throttledSaveChanges();
       projectClone.value.project.buildings.splice(buildingIndex, 1);
     }
 
@@ -420,7 +420,7 @@ export default {
         "create"
       );
       selectDevice(deviceId);
-      saveChanges();
+      throttledSaveChanges();
       createDeviceDialog.value.active = false;
       createDeviceDialog.value.data = {
         inputs: [],
@@ -488,7 +488,7 @@ export default {
         editDeviceDialog.value.data,
         "update"
       );
-      saveChanges();
+      throttledSaveChanges();
       editDeviceDialog.value.active = false;
       editDeviceDialog.value.data = {
         inputs: [],
@@ -547,7 +547,7 @@ export default {
         device,
         "delete"
       );
-      saveChanges();
+      throttledSaveChanges();
       projectClone.value.project.buildings[
         selectedBuildingIndex
       ].devices.splice(deviceIndex, 1);
@@ -569,7 +569,7 @@ export default {
           field,
           event.data
         );
-      saveChanges();
+      throttledSaveChanges();
 
       changes.value = cloneDeep(changes.value);
       if (event.newValue?._op === "delete") {
@@ -600,7 +600,7 @@ export default {
         );
 
       changes.value = cloneDeep(changes.value);
-      saveChanges();
+      throttledSaveChanges();
     }
 
     function handleGridRowsRemoved({ event, field }) {
@@ -625,7 +625,7 @@ export default {
           );
       }
       changes.value = cloneDeep(toRaw(changes.value));
-      saveChanges();
+      throttledSaveChanges();
     }
 
     function saveChanges() {
@@ -698,6 +698,7 @@ export default {
     const changes = ref(null);
 
     const debouncedSaveChanges = debounce(saveChanges, 1000)
+    const throttledSaveChanges = throttle(saveChanges, 1000)
 
     function handleFieldChanged(data, field) {
       if (!changes.value) {
@@ -901,7 +902,7 @@ export default {
             _op: "delete",
           };
           projectClone.value.project.image = null;
-          saveChanges();
+          throttledSaveChanges();
         })
         .onCancel(() => {
           // console.log('>>>> Cancel')
