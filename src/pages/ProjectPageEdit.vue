@@ -4,7 +4,7 @@ import { useRoute, onBeforeRouteLeave } from "vue-router";
 import { computed, ref, watchEffect, watch, toRaw } from "vue";
 import { useAppStore } from "stores/appStore";
 import { useMeta, useQuasar } from "quasar";
-import { cloneDeep } from "lodash";
+import { cloneDeep, debounce } from "lodash";
 import AppEditor from "src/components/AppEditor.vue";
 import Toolbar from "../components/Toolbar.vue";
 import FileUpload from "src/components/FileUpload.vue";
@@ -129,8 +129,8 @@ export default {
 
     const pageTitle = computed(() => {
       return projectQuery.data.value?.project?.name
-        ? `Edit Project: ${projectQuery.data.value?.project?.name}`
-        : "Edit Project";
+        ? projectQuery.data.value?.project?.name
+        : "Project";
     });
 
     useMeta(() => {
@@ -697,6 +697,8 @@ export default {
 
     const changes = ref(null);
 
+    const debouncedSaveChanges = debounce(saveChanges, 1000)
+
     function handleFieldChanged(data, field) {
       if (!changes.value) {
         changes.value = {};
@@ -705,7 +707,10 @@ export default {
         changes.value._op = "update";
       }
       changes.value[field] = data;
+      debouncedSaveChanges()
     }
+
+
 
     function cleanUpChanges(changes) {
       if (!changes) return changes;
@@ -1105,7 +1110,7 @@ export default {
       </template>
       <template #desktop-menu>
         <h1 class="truncate lg:border-l-2 border-solid text-2xl font-bold lg:ml-4 px-4">
-          Edit Project: {{ project?.project?.name }}
+          {{ project?.project?.name }}
         </h1>
       </template>
       <template #search-input>
@@ -1143,9 +1148,16 @@ export default {
             <q-input class="grow py-4" v-model="projectClone.project.name" label="Name"
               @update:model-value="handleFieldChanged($event, 'name')" />
           </div>
+          <q-expansion-item expand-separator icon="description" label="Description"
+            caption="Project Description ( optional )" class="mt-2">
+            <q-card>
+              <q-card-section>
+                <q-input class="py-2" v-model="projectClone.project.description" label="Description" type="textarea"
+                  autogrow @update:model-value="handleFieldChanged($event, 'description')" />
+              </q-card-section>
+            </q-card>
+          </q-expansion-item>
 
-          <q-input class="py-2" v-model="projectClone.project.description" label="Description" type="textarea" autogrow
-            @update:model-value="handleFieldChanged($event, 'description')" />
           <div class="flex flex-col md:flex-row flex-nowrap mt-2">
             <div class="side-bar mb-4 md:mb-0 md:pr-4 flex-1">
               <q-list bordered class="rounded-borders">

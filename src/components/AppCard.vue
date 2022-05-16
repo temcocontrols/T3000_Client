@@ -22,7 +22,7 @@ export default {
 <template>
   <div class="p-2 text-center font-bold text-gray-600 app-card bg-white">
     <slot name="top"></slot>
-    <router-link :to="path + app.slug">
+    <router-link :to="path + app.id + '/edit'">
       <div>
         <img v-if="!app.image" src="../assets/placeholder.png" alt />
         <img v-else :src="imageServerUrl + app.image.path + '?w=272&h=181'" alt />

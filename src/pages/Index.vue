@@ -202,13 +202,6 @@ export default {
               actionMenuToggle('project-card-action-btn-' + project.id)
             ">
               <q-list style="min-width: 70px">
-                <q-item clickable v-close-popup dense :to="'/project/' + project.id + '/edit'">
-                  <q-item-section avatar>
-                    <q-icon name="edit" />
-                  </q-item-section>
-                  <q-item-section>Edit</q-item-section>
-                </q-item>
-                <q-separator />
                 <q-item clickable v-close-popup dense @click="deleteProjectAction(project)">
                   <q-item-section avatar>
                     <q-icon name="delete" />
