@@ -30,13 +30,13 @@ export const client = createClient({
 
         return makeOperation(operation.kind, operation, {
           ...operation.context,
-          fetchOptions /* : {
+          fetchOptions: {
             ...fetchOptions,
             headers: {
               ...fetchOptions.headers,
-              access_key: authState.accessKey,
+              "access-key": authState.accessKey,
             },
-          },*/,
+          },
         });
       },
       willAuthError: ({ authState }) => {
@@ -49,7 +49,7 @@ export const client = createClient({
         console.log(error);
 
         if (error.graphQLErrors.some((e) => isAuthError(e))) {
-          Cookies.remove("access_key");
+          Cookies.remove("access-key");
           window.location.href = `${window.location.origin}/login?redirect=${window.location.pathname}`;
           return true;
         }
@@ -57,7 +57,7 @@ export const client = createClient({
       getAuth: async ({ authState, _mutate }) => {
         // for initial launch, fetch the auth state from storage (local storage, async storage etc)
         if (!authState) {
-          const accessKey = Cookies.get("access_key");
+          const accessKey = Cookies.get("access-key");
           if (accessKey) {
             return { accessKey };
           }

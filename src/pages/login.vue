@@ -37,7 +37,10 @@ export default {
       });
       loginMut.executeMutation({ accessKey: accessKey.value }).then(async (res) => {
         $q.loading.hide();
+
         if (res.data?.login) {
+          console.log("OK Logged in...", res.data)
+          $q.cookies.set('access-key', accessKey.value)
           store.setAuthenticated(true);
           if (route.query?.redirect) {
             router.push({ path: route.query?.redirect });
