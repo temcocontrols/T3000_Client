@@ -582,6 +582,7 @@ export default {
     }
 
     function handleGridRowAdded({ event, field }) {
+      pauseQuery.value = false;
       const selectedBuildingIndex =
         projectClone.value.project.buildings.findIndex(
           (item) => item.id === selectedBuilding.value.value
@@ -600,7 +601,7 @@ export default {
         );
 
       changes.value = cloneDeep(changes.value);
-      throttledSaveChanges();
+      debouncedSaveChanges();
     }
 
     function handleGridRowsRemoved({ event, field }) {
