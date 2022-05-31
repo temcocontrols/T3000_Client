@@ -40,13 +40,15 @@ export default {
       saveBtnLoading: false,
     });
 
-    function save(compileOnly = false) {
-      editCodeDialog.value.persistent = true;
-      if (!compileOnly) {
-        editCodeDialog.value.saveBtnLoading = true;
-      } else {
-        editCodeDialog.value.compileBtnLoading = true;
-      }
+    function save() {
+      editCodeDialog.value.saveBtnLoading = false;
+      value.value = code.value
+      editCodeDialog.value.active = false;
+      editCodeDialog.value.persistent = false;
+      props.params.stopEditing();
+    }
+
+    function compileProgram() {
       interpretorFactory().then((interpretor) => {
         const encode_function_error = interpretor.cwrap('encode_function_error', 'number', ['string'])
         const errorCode = encode_function_error(code.value)
@@ -57,17 +59,8 @@ export default {
             icon: "done",
           });
 
-          editCodeDialog.value.saveBtnLoading = false;
           editCodeDialog.value.compileBtnLoading = false;
-          if (!compileOnly) {
-            value.value = code.value
-            editCodeDialog.value.active = false;
-            editCodeDialog.value.persistent = false;
-            props.params.stopEditing();
-          }
         } else if (errorCode !== undefined && errorCode !== -1) {
-
-          editCodeDialog.value.saveBtnLoading = false;
           editCodeDialog.value.compileBtnLoading = false;
           $q.notify({
             message: "There is a problem in the program code, it can't compile!",
@@ -101,6 +94,7 @@ export default {
       editCodeDialog,
       getValue,
       save,
+      compileProgram,
       cancel,
       prismComponentRef,
       onHideEditCodeDialog,
@@ -125,7 +119,7 @@ export default {
         <q-btn flat label="Cancel" @click="cancel()" />
         <div>
           <q-btn :disabled="!code" :loading="editCodeDialog.compileBtnLoading" flat label="Compile"
-            @click="save(true)" />
+            @click="compileProgram()" />
           <q-btn :disabled="!code" :loading="editCodeDialog.saveBtnLoading" flat label="Save" @click="save()" />
         </div>
       </q-card-actions>
