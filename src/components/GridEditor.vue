@@ -45,8 +45,12 @@ export default {
       type: Array,
       required: true,
     },
-    rows: {
-      type: Array,
+    deviceData: {
+      type: Object,
+      required: true,
+    },
+    field: {
+      type: String,
       required: true,
     },
     rowHeight: {
@@ -122,10 +126,11 @@ export default {
     <q-btn v-if="selectedRows?.length" class="ml-2" no-caps size="sm" color="red-8" label="Delete selected rows"
       @click="removeSelected()" />
   </div>
-  <ag-grid-vue style="width: 100%" class="ag-theme-alpine-dark" :columnDefs="columns" :rowData="rows"
-    :rowHeight="rowHeight" rowSelection="multiple" :suppressRowClickSelection="true" :context="{ type, slug }"
-    @first-data-rendered="autoSizeAll" @cell-value-changed="$emit('cellChanged', $event)" @grid-ready="onGridReady"
-    @selection-changed="onSelectionChanged" :defaultColDef="{
+  <ag-grid-vue style="width: 100%" class="ag-theme-alpine-dark" :columnDefs="columns" :rowData="deviceData[field]"
+    :rowHeight="rowHeight" rowSelection="multiple" :suppressRowClickSelection="true"
+    :context="{ type, slug, deviceData }" @first-data-rendered="autoSizeAll"
+    @cell-value-changed="$emit('cellChanged', $event)" @grid-ready="onGridReady" @selection-changed="onSelectionChanged"
+    :defaultColDef="{
       editable: true,
       // filter: 'agTextColumnFilter',
       resizable: true,

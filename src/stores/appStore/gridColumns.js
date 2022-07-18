@@ -257,13 +257,64 @@ export default {
       headerName: "Input",
       sortable: true,
       field: "input",
+      valueSetter: (params) => {
+        const theNewValue = params.newValue.replace(/-/g, "").toLowerCase();
+        if (theNewValue.startsWith("in") || theNewValue.startsWith("var")) {
+          if (theNewValue.startsWith("in")) {
+            const inputIndex = parseInt(theNewValue.replace(/in/g, ""));
+            if (inputIndex) {
+              const selectedInput = params.context.deviceData.inputs.find(
+                (item) => item.index === inputIndex
+              );
+              if (selectedInput?.id) {
+                params.data.input = `IN${selectedInput.index}`;
+                params.data.inputValue = selectedInput.value;
+                params.data.inputUnits = selectedInput.units;
+              } else {
+                alert(`There is no input with this name "${params.newValue}"!`);
+                return false;
+              }
+            } else {
+              alert(`There is no input with this name "${params.newValue}"!`);
+              return false;
+            }
+          } else if (theNewValue.startsWith("var")) {
+            const varIndex = parseInt(theNewValue.replace(/var/g, ""));
+            if (varIndex) {
+              const selectedVar = params.context.deviceData.variables.find(
+                (item) => item.index === varIndex
+              );
+              if (selectedVar?.id) {
+                params.data.input = `VAR${selectedVar.index}`;
+                params.data.inputValue = selectedVar.value;
+                params.data.inputUnits = selectedVar.units;
+              } else {
+                alert(
+                  `There is no variable with this name "${params.newValue}"!`
+                );
+                return false;
+              }
+            } else {
+              alert(
+                `There is no variable with this name "${params.newValue}"!`
+              );
+              return false;
+            }
+          }
+        } else {
+          alert(
+            `There is no input nor variable with this name "${params.newValue}"!`
+          );
+          return false;
+        }
+        return true;
+      },
     },
     {
       colId: 3,
       headerName: "Input Value",
       sortable: true,
       field: "inputValue",
-      cellEditor: "NumericEditor",
     },
     {
       colId: 4,
