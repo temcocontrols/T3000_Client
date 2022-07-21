@@ -1,6 +1,7 @@
 <script>
 import { onUnmounted } from "vue";
 import { Dashboard } from "@uppy/vue";
+import { useQuasar } from "quasar";
 
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
@@ -30,6 +31,7 @@ export default {
   },
   emits: ["uploaded", "fileAdded", "fileRemoved"],
   setup(props, ctx) {
+    const $q = useQuasar();
     const fileServerUrl = `${process.env.API_URL}file?path=${props.path}`;
     const uppy = new Uppy({
       // autoProceed: true,
@@ -44,6 +46,9 @@ export default {
       fieldName: "file",
       method: "post",
       withCredentials: true,
+      headers: {
+        "access-key": $q.cookies.get('access-key')
+      }
     });
     uppy.use(ImageEditor, {
       quality: 1,
@@ -82,24 +87,19 @@ export default {
 </script>
 
 <template>
-  <dashboard
-    ref="dash"
-    :uppy="uppy"
-    :props="{
-      proudlyDisplayPoweredByUppy: false,
-      hideUploadButton: true,
-      height: 300,
-      metaFields: [
-        { id: 'name', name: 'Name', placeholder: 'file name' },
-        {
-          id: 'caption',
-          name: 'Caption',
-          placeholder: 'describe what the image is about',
-        },
-      ],
-    }"
-    :plugins="['ImageEditor']"
-  />
+  <dashboard ref="dash" :uppy="uppy" :props="{
+    proudlyDisplayPoweredByUppy: false,
+    hideUploadButton: true,
+    height: 300,
+    metaFields: [
+      { id: 'name', name: 'Name', placeholder: 'file name' },
+      {
+        id: 'caption',
+        name: 'Caption',
+        placeholder: 'describe what the image is about',
+      },
+    ],
+  }" :plugins="['ImageEditor']" />
 </template>
 
 <style scoped>
