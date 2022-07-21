@@ -314,10 +314,16 @@ export default {
             }
           }
         } else {
-          alert(
-            `There is no input nor variable with this name "${params.newValue}"!`
-          );
-          return false;
+          if (!theNewValue || theNewValue === " ") {
+            params.data.input = "";
+            params.data.inputValue = "";
+            params.data.inputUnits = "";
+          } else {
+            alert(
+              `There is no input nor variable with this name "${params.newValue}"!`
+            );
+            return false;
+          }
         }
         return true;
       },
