@@ -39,7 +39,6 @@ export default {
         $q.loading.hide();
 
         if (res.data?.login) {
-          console.log("OK Logged in...", res.data)
           $q.cookies.set('access-key', accessKey.value, { expires: "30d" })
           store.setAuthenticated(true);
           if (route.query?.redirect) {
