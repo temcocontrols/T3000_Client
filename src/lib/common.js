@@ -113,6 +113,19 @@ schedules (orderBy: {index: asc}) {
   status1
   holiday2
   status2
+  times{
+    id
+    status
+    monday
+    tuesday
+    wednesday
+    thursday
+    friday
+    saterday
+    sunday
+    holiday1
+    holiday2
+  }
 }
 `;
 

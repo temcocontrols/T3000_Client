@@ -11,6 +11,7 @@ import DatePicker from "./grid/DatePicker.vue";
 import YearCalendar from "./grid/YearCalendar.vue";
 import RangeEditor from "./grid/RangeEditor.vue";
 import CodeEditor from "./grid/CodeEditor.vue";
+import ScheduleEditor from "./grid/ScheduleEditor.vue";
 import ButtonRenderer from "./grid/ButtonRenderer.vue";
 
 export default {
@@ -30,6 +31,8 @@ export default {
     RangeEditor,
     // eslint-disable-next-line vue/no-unused-components
     CodeEditor,
+    // eslint-disable-next-line vue/no-unused-components
+    ScheduleEditor,
     // eslint-disable-next-line vue/no-unused-components
     ButtonRenderer,
   },

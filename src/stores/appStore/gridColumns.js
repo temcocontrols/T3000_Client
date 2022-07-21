@@ -29,6 +29,18 @@ export default {
       cellClassRules: requiredClassRules,
     },
     {
+      colId: 15,
+      headerName: "Schedule Times",
+      cellRenderer: "ButtonRenderer",
+      cellRendererParams: {
+        label: "Set times",
+        colKey: 15,
+      },
+      cellEditorPopup: true,
+      cellEditor: "ScheduleEditor",
+      field: "times",
+    },
+    {
       colId: 2,
       headerName: "Label",
       sortable: true,
@@ -430,6 +442,7 @@ export default {
       cellRenderer: "ButtonRenderer",
       cellRendererParams: {
         label: "Programming",
+        colKey: 11,
       },
       cellEditor: "CodeEditor",
       cellEditorPopup: true,

@@ -3,7 +3,7 @@
 export default {
   setup(props) {
     function openEditor() {
-      props.params.api.startEditingCell({ rowIndex: props.params.node.rowIndex, colKey: "11" });
+      props.params.api.startEditingCell({ rowIndex: props.params.node.rowIndex, colKey: props.params.colKey });
     }
     return { openEditor };
   },
