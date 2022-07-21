@@ -40,7 +40,7 @@ export default {
 
         if (res.data?.login) {
           console.log("OK Logged in...", res.data)
-          $q.cookies.set('access-key', accessKey.value)
+          $q.cookies.set('access-key', accessKey.value, { expires: "30d" })
           store.setAuthenticated(true);
           if (route.query?.redirect) {
             router.push({ path: route.query?.redirect });
