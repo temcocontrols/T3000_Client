@@ -1,5 +1,5 @@
 <script>
-import { ref, toRaw } from "vue";
+import { ref, toRaw, computed } from "vue";
 import { cloneDeep } from "lodash"
 export default {
   setup(props) {
@@ -7,10 +7,19 @@ export default {
     const value = ref(props.params.value);
 
     const modVal = ref(cloneDeep(props.params.value) || []);
+    const selected = ref([]);
+
+    const newRowsCount = 0;
 
     const newRow = { _op: "create", status: "OFF", monday: null, tuesday: null, wednesday: null, thursday: null, friday: null, saterday: null, sunday: null, holiday1: null, holiday2: null, }
 
     const columns = [
+      {
+        name: "id",
+        label: "#",
+        sortable: false,
+        field: "id",
+      },
       {
         name: "status",
         label: "Status",
@@ -76,7 +85,6 @@ export default {
     /* Component Editor Lifecycle methods */
     // the final value to send to the grid, on completion of editing
     const getValue = () => {
-      console.log(value.value)
       return toRaw(value.value);
     };
 
@@ -102,6 +110,16 @@ export default {
       props.params.stopEditing();
     }
 
+    function deleteSelected() {
+      modVal.value = modVal.value.map(item => {
+        if (selected.value.some(sItem => item.id === sItem.id)) {
+          item._op = 'delete'
+        }
+        return item
+      })
+      selected.value = []
+    }
+
     function cancel() {
       editScheduleDialog.value.persistent = false;
       editScheduleDialog.value.saveBtnLoading = false;
@@ -115,17 +133,27 @@ export default {
     }
 
     function addNewRow() {
+      newRowsCount++
+      newRow.id = `new-${newRowsCount}`
       modVal.value.push(newRow)
     }
+
+    // a computed ref
+    const filteredRows = computed(() => {
+      return modVal.value.filter(item => !item._op || item._op !== 'delete')
+    })
     return {
       modVal,
       value,
+      selected,
       newRow,
+      filteredRows,
       columns,
       editScheduleDialog,
       getValue,
       save,
       cancel,
+      deleteSelected,
       onHideEditScheduleDialog,
       addNewRow,
     };
@@ -141,13 +169,18 @@ export default {
         <div class="text-h6">Schedule Time</div>
       </q-card-section>
       <q-card-section class="q-pt-none">
-        <q-table :rows="modVal" :columns="columns" row-key="name">
+        <q-table :rows="filteredRows" selection="multiple" v-model:selected="selected" :columns="columns" row-key="id">
           <template v-slot:top>
             <q-btn color="primary" label="Add row" @click="addNewRow" />
-            <q-btn class="q-ml-sm" color="primary" label="Remove row" />
+            <q-btn v-if="selected.length" class="q-ml-sm" color="primary" label="Remove selected rows"
+              @click="deleteSelected()" />
           </template>
+          <template v-slot:header-cell-id></template>
           <template v-slot:body="props">
             <q-tr :props="props">
+              <q-td key="id" :props="props">
+                <q-checkbox v-model="props.selected" />
+              </q-td>
               <q-td key="status" :props="props">
                 <q-toggle v-model="props.row.status" true-value="ON" false-value="OFF" />
               </q-td>
