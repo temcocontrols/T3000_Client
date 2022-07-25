@@ -9,7 +9,7 @@ export default {
     const modVal = ref(cloneDeep(props.params.value) || []);
     const selected = ref([]);
 
-    const newRowsCount = 0;
+    let newRowsCount = 0;
 
     const newRow = { _op: "create", status: "OFF", monday: null, tuesday: null, wednesday: null, thursday: null, friday: null, saterday: null, sunday: null, holiday1: null, holiday2: null, }
 
@@ -165,10 +165,12 @@ export default {
   <q-dialog @hide="onHideEditScheduleDialog()" v-model="editScheduleDialog.active"
     :persistent="editScheduleDialog.persistent">
     <q-card style="min-width: 1100px">
-      <q-card-section>
+      <q-card-section class="row items-center">
         <div class="text-h6">Schedule Time</div>
+        <q-space />
+        <q-btn icon="close" flat round dense @click="cancel()" />
       </q-card-section>
-      <q-card-section class="q-pt-none">
+      <q-card-section style="max-height: 75vh" class="scroll q-pt-none">
         <q-table :rows="filteredRows" selection="multiple" v-model:selected="selected" :columns="columns" row-key="id">
           <template v-slot:top>
             <q-btn color="primary" label="Add row" @click="addNewRow" />
