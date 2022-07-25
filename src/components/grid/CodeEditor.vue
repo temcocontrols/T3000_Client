@@ -51,7 +51,7 @@ export default {
     function compileProgram() {
       interpretorFactory().then((interpretor) => {
         const encode_function_error = interpretor.cwrap('encode_function_error', 'number', ['string'])
-        const errorCode = encode_function_error(code.value)
+        const errorCode = encode_function_error(code.value.replace(/\r?\n/g, "\r\n"))
         if (errorCode === -1) {
           $q.notify({
             message: "Program has been compiled successfully.",
