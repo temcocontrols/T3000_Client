@@ -37,10 +37,9 @@ export default {
       saveBtnLoading: false,
     });
 
-    async function save(force) {
+    async function save() {
       editCodeDialog.value.saveBtnLoading = false;
       const result = await compileProgram()
-      console.log("result", result)
       if (result) {
         editCodeDialog.value.active = false;
         editCodeDialog.value.persistent = false;
