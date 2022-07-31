@@ -3,10 +3,9 @@ import { ref, toRaw } from "vue";
 import { useQuasar } from "quasar";
 import interpretorFactory from "../../lib/t3-interpretor";
 import { PrismEditor } from "vue-prism-editor";
-import "vue-prism-editor/dist/prismeditor.min.css"; // import the styles somewhere
+import "vue-prism-editor/dist/prismeditor.min.css"; // import the styles
 import { highlight, languages } from "prismjs/components/prism-core";
-import "prismjs/components/prism-clike";
-import "prismjs/components/prism-javascript";
+import "../../lib/prism-controlbasic";
 import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
 
 export default {
@@ -25,7 +24,7 @@ export default {
     };
 
     function highlighter(code) {
-      return highlight(code, languages.js); //returns html
+      return highlight(code, languages.controlbasic);
     }
 
     const prismComponentRef = ref(null);
@@ -108,6 +107,10 @@ export default {
       editCodeDialog.value.saveBtnLoading = false;
     }
 
+    function toUpperCase() {
+      code.value = code.value.toUpperCase()
+    }
+
     return {
       value,
       editCodeDialog,
@@ -119,6 +122,7 @@ export default {
       onHideEditCodeDialog,
       highlighter,
       code,
+      toUpperCase,
     };
   },
 };
