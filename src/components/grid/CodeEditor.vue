@@ -11,6 +11,22 @@ import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
 export default {
   components: { PrismEditor },
   setup(props) {
+    const deviceDataKeys = Object.keys(props.params.context.deviceData)
+    let labels = []
+    deviceDataKeys.forEach(key => {
+      if (Array.isArray(props.params.context.deviceData[key])) {
+        const kLabels = props.params.context.deviceData[key].filter(item => item.label).map(i => i.label)
+        if (kLabels?.length) {
+          labels = labels.concat(kLabels)
+        }
+      }
+
+    });
+    languages.insertBefore("controlbasic", "keyword", {
+      keyword: new RegExp(String.raw`\b(?:${labels.join("|")})\b`),
+      // tokens after 'comment'
+    });
+
     // the current/initial value of the cell (before editing)
     const value = ref(props.params.value);
     const code = ref(value.value);
