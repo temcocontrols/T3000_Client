@@ -33,6 +33,7 @@ export default {
               id
               path
             }
+            customRanges
             buildings{
               id
               title
@@ -912,6 +913,61 @@ export default {
           // console.log('I am triggered on both OK and Cancel')
         });
     }
+
+    function updateProject(variables) {
+      const loading = $q.notify({
+        spinner: true,
+        message: "Saving...",
+        timeout: 0,
+      });
+      updateMutation
+        .executeMutation(variables)
+        .then((res) => {
+          loading();
+          if (res.data && !res.error) {
+            $q.notify({
+              message: "Project has been saved successfully.",
+              color: "primary",
+              icon: "done",
+            });
+          } else {
+            console.log(res.error);
+            $q.notify({
+              message: "Error: Project couldn't be saved!",
+              color: "negative",
+              icon: "error",
+              timeout: 0,
+              actions: [
+                { label: "Dismiss", color: "grey-5", handler: () => { } },
+              ],
+            });
+          }
+        })
+        .catch((e) => {
+          $q.notify({
+            message: `Error: Project couldn't be saved!, ${e}`,
+            color: "negative",
+            icon: "error",
+            timeout: 0,
+            actions: [
+              { label: "Dismiss", color: "grey-5", handler: () => { } },
+            ],
+          });
+        });
+    }
+
+    function handleGridCustomEvent(event) {
+      if (event.type === "digitalRangeAdded") {
+        const ranges = toRaw(projectClone.value.project.customRanges)
+        ranges.digital.push(event.data.rangeData)
+        updateProject({ where: { id: id.value }, data: { customRanges: ranges } })
+      } else if (event.type === "digitalRangeRemoved") {
+        const ranges = toRaw(projectClone.value.project.customRanges)
+        ranges.digital.splice(ranges.digital.findIndex(item => item.id === event.data.rangeId), 1);
+        updateProject({ where: { id: id.value }, data: { customRanges: ranges } })
+      }
+    }
+
     return {
       store,
       project: projectQuery.data,
@@ -955,6 +1011,7 @@ export default {
       handleFieldChanged,
       deleteBuildingAction,
       deleteDeviceAction,
+      handleGridCustomEvent,
     };
   },
 };
@@ -1251,9 +1308,10 @@ export default {
                 </q-expansion-item>
               </q-list>
             </div>
-            <app-editor v-if="selectedDevice" :app-data="selectedDevice" type="Project"
+            <app-editor v-if="selectedDevice" :project="projectClone.project" :app-data="selectedDevice" type="Project"
               :slug="projectClone?.project?.slug" @cell-changed="handleGridCellChanged($event)"
-              @rows-removed="handleGridRowsRemoved($event)" @row-added="handleGridRowAdded($event)" />
+              @rows-removed="handleGridRowsRemoved($event)" @row-added="handleGridRowAdded($event)"
+              @grid-custom-event="handleGridCustomEvent($event)" />
             <div v-else class="flex items-center justify-center grow min-w-0 max-w-full">
               Select a device from the sidebar to show the data.
             </div>

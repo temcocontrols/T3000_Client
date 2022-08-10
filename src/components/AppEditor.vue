@@ -20,8 +20,12 @@ export default {
       type: Object,
       required: true,
     },
+    project: {
+      type: Object,
+      required: false,
+    },
   },
-  emits: ["cellChanged", "rowsRemoved", "rowAdded"],
+  emits: ["cellChanged", "rowsRemoved", "rowAdded", "gridCustomEvent"],
   setup() {
     const store = useAppStore();
     const appTab = ref("inputs");
@@ -132,8 +136,9 @@ export default {
     <app-tabs v-model="appTab" />
     <q-tab-panels v-model="appTab" animated keep-alive class="shadow-2 rounded-borders">
       <q-tab-panel name="inputs">
-        <grid-editor v-if="appData?.inputs" :deviceData="appData" field="inputs" :newRow="typesNewRow.inputs"
-          :columns="store.gridColumns.inputs" @cell-changed="
+        <grid-editor v-if="appData?.inputs" :deviceData="appData" :project="project" field="inputs"
+          :newRow="typesNewRow.inputs" :columns="store.gridColumns.inputs"
+          @grid-custom-event="$emit('gridCustomEvent', $event)" @cell-changed="
             $emit('cellChanged', { event: $event, field: 'inputs' })
           " @rows-removed="
   $emit('rowsRemoved', { event: $event, field: 'inputs' })
@@ -141,8 +146,9 @@ export default {
       </q-tab-panel>
 
       <q-tab-panel name="outputs">
-        <grid-editor v-if="appData?.outputs" :deviceData="appData" field="outputs" :newRow="typesNewRow.outputs"
-          :columns="store.gridColumns.outputs" @cell-changed="
+        <grid-editor v-if="appData?.outputs" :deviceData="appData" :project="project" field="outputs"
+          :newRow="typesNewRow.outputs" :columns="store.gridColumns.outputs"
+          @grid-custom-event="$emit('gridCustomEvent', $event)" @cell-changed="
             $emit('cellChanged', { event: $event, field: 'outputs' })
           " @rows-removed="
   $emit('rowsRemoved', { event: $event, field: 'outputs' })
@@ -150,24 +156,28 @@ export default {
       </q-tab-panel>
 
       <q-tab-panel name="variables">
-        <grid-editor v-if="appData?.variables" :deviceData="appData" field="variables" :newRow="typesNewRow.variables"
-          :columns="store.gridColumns.variables" @cell-changed="
+        <grid-editor v-if="appData?.variables" :deviceData="appData" :project="project" field="variables"
+          :newRow="typesNewRow.variables" :columns="store.gridColumns.variables"
+          @grid-custom-event="$emit('gridCustomEvent', $event)" @cell-changed="
             $emit('cellChanged', { event: $event, field: 'variables' })
           " @rows-removed="
   $emit('rowsRemoved', { event: $event, field: 'variables' })
 " @row-added="$emit('rowAdded', { event: $event, field: 'variables' })" />
       </q-tab-panel>
       <q-tab-panel name="programs">
-        <grid-editor v-if="appData?.programs" :deviceData="appData" field="programs" :newRow="typesNewRow.programs"
-          :columns="store.gridColumns.programs" @cell-changed="
+        <grid-editor v-if="appData?.programs" :deviceData="appData" :project="project" field="programs"
+          :newRow="typesNewRow.programs" :columns="store.gridColumns.programs"
+          @grid-custom-event="$emit('gridCustomEvent', $event)" @cell-changed="
             $emit('cellChanged', { event: $event, field: 'programs' })
           " @rows-removed="
   $emit('rowsRemoved', { event: $event, field: 'programs' })
 " @row-added="$emit('rowAdded', { event: $event, field: 'programs' })" />
       </q-tab-panel>
       <q-tab-panel name="pids">
-        <grid-editor v-if="appData?.pids" :deviceData="appData" field="pids" :newRow="typesNewRow.pids"
-          :columns="store.gridColumns.pids" @cell-changed="$emit('cellChanged', { event: $event, field: 'pids' })"
+        <grid-editor v-if="appData?.pids" :deviceData="appData" :project="project" field="pids"
+          :newRow="typesNewRow.pids" :columns="store.gridColumns.pids"
+          @grid-custom-event="$emit('gridCustomEvent', $event)"
+          @cell-changed="$emit('cellChanged', { event: $event, field: 'pids' })"
           @rows-removed="$emit('rowsRemoved', { event: $event, field: 'pids' })"
           @row-added="$emit('rowAdded', { event: $event, field: 'pids' })" />
       </q-tab-panel>
@@ -179,8 +189,9 @@ export default {
         </q-tabs>
         <q-tab-panels v-model="graphicTab" animated class="shadow-2 rounded-borders">
           <q-tab-panel name="data">
-            <grid-editor v-if="appData?.graphics" :deviceData="appData" field="graphics" :newRow="typesNewRow.graphics"
-              :columns="store.gridColumns.graphics" :row-height="80" :type="type" :slug="slug" @cell-changed="
+            <grid-editor v-if="appData?.graphics" :deviceData="appData" :project="project" field="graphics"
+              :newRow="typesNewRow.graphics" :columns="store.gridColumns.graphics" :row-height="80" :type="type"
+              :slug="slug" @grid-custom-event="$emit('gridCustomEvent', $event)" @cell-changed="
                 $emit('cellChanged', { event: $event, field: 'graphics' })
               " @rows-removed="
   $emit('rowsRemoved', { event: $event, field: 'graphics' })
@@ -215,16 +226,18 @@ export default {
         </q-tab-panels>
       </q-tab-panel>
       <q-tab-panel name="holidays">
-        <grid-editor v-if="appData?.holidays" :deviceData="appData" field="holidays" :newRow="typesNewRow.holidays"
-          :columns="store.gridColumns.holidays" @cell-changed="
+        <grid-editor v-if="appData?.holidays" :deviceData="appData" :project="project" field="holidays"
+          :newRow="typesNewRow.holidays" :columns="store.gridColumns.holidays"
+          @grid-custom-event="$emit('gridCustomEvent', $event)" @cell-changed="
             $emit('cellChanged', { event: $event, field: 'holidays' })
           " @rows-removed="
   $emit('rowsRemoved', { event: $event, field: 'holidays' })
 " @row-added="$emit('rowAdded', { event: $event, field: 'holidays' })" />
       </q-tab-panel>
       <q-tab-panel name="schedules">
-        <grid-editor v-if="appData?.schedules" :deviceData="appData" field="schedules" :newRow="typesNewRow.schedules"
-          :columns="store.gridColumns.schedules" @cell-changed="
+        <grid-editor v-if="appData?.schedules" :deviceData="appData" :project="project" field="schedules"
+          :newRow="typesNewRow.schedules" :columns="store.gridColumns.schedules"
+          @grid-custom-event="$emit('gridCustomEvent', $event)" @cell-changed="
             $emit('cellChanged', { event: $event, field: 'schedules' })
           " @rows-removed="
   $emit('rowsRemoved', { event: $event, field: 'schedules' })

@@ -1,8 +1,9 @@
 <script>
 import { ref, toRaw, onMounted } from "vue";
 import { ranges } from "src/lib/common";
+import { cloneDeep } from "lodash"
 export default {
-  setup(props) {
+  setup(props, ctx) {
     // the current/initial value of the cell (before editing)
     const value = ref(props.params.value);
 
@@ -25,6 +26,15 @@ export default {
     const range = ref(null)
     const tab = ref('digital')
     const analogTab = ref('tempSensors')
+    const digitalTab = ref('default')
+    const customDigitalRanges = ref([])
+    const addCustomDigitalRangeDialog = ref({
+      active: false,
+      id: 22
+
+    })
+
+    const newDigitalRange = ref({})
 
     onMounted(() => {
       const digitalRange = ranges.digital.find(item => item.label === value.value)
@@ -44,17 +54,25 @@ export default {
           }
         }
       }
+      customDigitalRanges.value = cloneDeep(props.params.context.project.customRanges?.digital)
     })
 
     function save() {
       const data = props.params.node.data
       const digitalRange = ranges.digital.find(item => item.id === range.value)
+      const cDigitalRange = customDigitalRanges.value.find(item => item.id === range.value)
       if (digitalRange) {
         data.value = digitalRange.off
         data.type = "Digital"
         data.units = null
         data.calibration = null
         value.value = digitalRange.label
+      } else if (cDigitalRange) {
+        data.value = cDigitalRange.off
+        data.type = "Digital"
+        data.units = null
+        data.calibration = null
+        value.value = cDigitalRange.label
       } else {
         data.type = "Analog"
         if (!parseFloat(data.value)) {
@@ -80,6 +98,30 @@ export default {
       });
       props.params.stopEditing();
     }
+    function addCustomDigitalRangeAction() {
+      newDigitalRange.value = { directInvers: false }
+      addCustomDigitalRangeDialog.value.active = true
+    }
+    function addCustomDigitalRange() {
+      addCustomDigitalRangeDialog.value.active = false
+      addCustomDigitalRangeDialog.value.id = 23 + customDigitalRanges.value.length
+      newDigitalRange.value.id = addCustomDigitalRangeDialog.value.id
+      newDigitalRange.value.label = `${newDigitalRange.value.off}/${newDigitalRange.value.on}`
+      customDigitalRanges.value.push(toRaw(newDigitalRange.value))
+      props.params.api.dispatchEvent({
+        type: 'digitalRangeAdded',
+        data: { rangeData: toRaw(newDigitalRange.value) }
+      });
+      range.value = cloneDeep(newDigitalRange.value.id)
+    }
+
+    function removeCustomDigitalRange(id) {
+      customDigitalRanges.value.splice(customDigitalRanges.value.findIndex(item => item.id === id), 1);
+      props.params.api.dispatchEvent({
+        type: 'digitalRangeRemoved',
+        data: { rangeId: id }
+      });
+    }
     return {
       value,
       rangeEditorDialog,
@@ -88,9 +130,16 @@ export default {
       onHideRangeEditorDialog,
       tab,
       analogTab,
+      digitalTab,
       range,
       ranges,
+      customDigitalRanges,
       save,
+      addCustomDigitalRangeAction,
+      addCustomDigitalRange,
+      addCustomDigitalRangeDialog,
+      newDigitalRange,
+      removeCustomDigitalRange
     };
   },
 };
@@ -110,15 +159,35 @@ export default {
         <q-separator />
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="digital">
-            <div class="grid grid-rows-11 grid-flow-col gap-4">
-              <q-radio
-                v-for="item in ranges.digital"
-                :key="item.id"
-                v-model="range"
-                :val="item.id"
-                :label="`${item.id}. ${item.label}`"
-              />
-            </div>
+            <q-tabs v-model="digitalTab" inline-label class="bg-secondary text-white shadow-2">
+              <q-tab name="default" icon="list" label="Default" />
+              <q-tab name="custom" icon="tune" label="Custom" />
+            </q-tabs>
+            <q-separator />
+            <q-tab-panels v-model="digitalTab" animated>
+              <q-tab-panel name="default">
+                <div class="grid grid-rows-11 grid-flow-col gap-4">
+                  <q-radio v-for="item in ranges.digital" :key="item.id" v-model="range" :val="item.id"
+                    :label="`${item.id}. ${item.label}`" />
+                </div>
+              </q-tab-panel>
+              <q-tab-panel name="custom">
+                <div class="grid grid-rows-3 grid-flow-col gap-4 mb-4" v-if="customDigitalRanges?.length">
+                  <div v-for="item in customDigitalRanges" :key="item.id" class="custom-range-container relative">
+                    <q-radio v-model="range" :val="item.id" :label="`${item.id}. ${item.label}`" />
+                    <div class="actions hidden absolute top-1 right-3">
+                      <q-btn round dense color="red-8" size="sm" icon="delete" class="ml-1"
+                        @click="removeCustomDigitalRange(item.id)">
+                        <q-tooltip>Delete range</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="mb-4">No custom ranges.</div>
+                <q-btn color="primary" label="Add custom range" @click="addCustomDigitalRangeAction"
+                  :disable="customDigitalRanges.length > 5" />
+              </q-tab-panel>
+            </q-tab-panels>
           </q-tab-panel>
           <q-tab-panel name="analog">
             <q-tabs v-model="analogTab" inline-label class="bg-secondary text-white shadow-2">
@@ -129,24 +198,14 @@ export default {
             <q-tab-panels v-model="analogTab" animated>
               <q-tab-panel name="tempSensors">
                 <div class="grid grid-cols-2 gap-4">
-                  <q-radio
-                    v-for="item in ranges.analog.tempSensors"
-                    :key="item.id"
-                    v-model="range"
-                    :val="item.id"
-                    :label="`${item.id}. ${item.label} ${item.unit}`"
-                  />
+                  <q-radio v-for="item in ranges.analog.tempSensors" :key="item.id" v-model="range" :val="item.id"
+                    :label="`${item.id}. ${item.label} ${item.unit}`" />
                 </div>
               </q-tab-panel>
               <q-tab-panel name="others">
                 <div class="grid grid-rows-9 grid-flow-col gap-4">
-                  <q-radio
-                    v-for="item in ranges.analog.others"
-                    :key="item.id"
-                    v-model="range"
-                    :val="item.id"
-                    :label="`${item.id}. ${item.label}`"
-                  />
+                  <q-radio v-for="item in ranges.analog.others" :key="item.id" v-model="range" :val="item.id"
+                    :label="`${item.id}. ${item.label}`" />
                 </div>
               </q-tab-panel>
             </q-tab-panels>
@@ -160,13 +219,48 @@ export default {
       </q-card-actions>
     </q-card>
   </q-dialog>
+
+  <q-dialog v-model="addCustomDigitalRangeDialog.active">
+    <q-card style="min-width: 600px">
+      <q-card-section class="row items-center">
+        <div class="text-h6">Add Custom Range</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+      <q-form class="q-gutter-md" @submit="addCustomDigitalRange()">
+        <q-card-section class="scroll q-pt-none">
+          <q-input filled v-model="newDigitalRange.off" label="Digital off *" lazy-rules
+            :rules="[val => val !== undefined && val !== null && val !== '' || 'Please type digital off value', val => val !== newDigitalRange.on || 'Off value should not be the same as on value']" />
+
+          <q-input filled v-model="newDigitalRange.on" label="Digital on *" lazy-rules :rules="[val => val !== undefined && val !== null && val !== '' || 'Please type digital on value',
+          val => val !== newDigitalRange.off || 'On value should not be the same as off value']" />
+
+          <q-toggle v-model="newDigitalRange.directInvers" label="Invers" />
+
+        </q-card-section>
+
+        <q-card-actions align="between" class="text-primary">
+          <div></div>
+          <div>
+            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn type="submit" flat label="Save" />
+          </div>
+        </q-card-actions>
+      </q-form>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style scoped>
 .grid-rows-11 {
   grid-template-rows: repeat(11, minmax(0, 1fr));
 }
+
 .grid-rows-9 {
   grid-template-rows: repeat(9, minmax(0, 1fr));
+}
+
+.custom-range-container:hover .actions {
+  display: inline-block !important;
 }
 </style>

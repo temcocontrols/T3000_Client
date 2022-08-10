@@ -52,6 +52,10 @@ export default {
       type: Object,
       required: true,
     },
+    project: {
+      type: Object,
+      required: false,
+    },
     field: {
       type: String,
       required: true,
@@ -65,7 +69,7 @@ export default {
       default: null,
     },
   },
-  emits: ["cellChanged", "rowsRemoved", "rowAdded"],
+  emits: ["cellChanged", "rowsRemoved", "rowAdded", "gridCustomEvent"],
   setup(props, ctx) {
     const newItemsCount = ref(0);
     const gridApi = ref(null);
@@ -114,6 +118,8 @@ export default {
       gridApi,
       onGridReady(params) {
         gridApi.value = params.api;
+        params.api.addEventListener("digitalRangeAdded", (ev) => { ctx.emit("gridCustomEvent", ev); })
+        params.api.addEventListener("digitalRangeRemoved", (ev) => { ctx.emit("gridCustomEvent", ev); })
       },
       onSelectionChanged(params) {
         selectedRows.value = params.api.getSelectedRows();
@@ -131,7 +137,7 @@ export default {
   </div>
   <ag-grid-vue style="width: 100%" class="ag-theme-alpine-dark" :columnDefs="columns" :rowData="deviceData[field]"
     :rowHeight="rowHeight" rowSelection="multiple" :suppressRowClickSelection="true"
-    :context="{ type, slug, deviceData }" @first-data-rendered="autoSizeAll"
+    :context="{ type, slug, deviceData, project }" @first-data-rendered="autoSizeAll"
     @cell-value-changed="$emit('cellChanged', $event)" @grid-ready="onGridReady" @selection-changed="onSelectionChanged"
     :defaultColDef="{
       editable: true,
