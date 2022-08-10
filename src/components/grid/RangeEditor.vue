@@ -37,9 +37,13 @@ export default {
     const newDigitalRange = ref({})
 
     onMounted(() => {
+      customDigitalRanges.value = cloneDeep(props.params.context.project.customRanges?.digital)
       const digitalRange = ranges.digital.find(item => item.label === value.value)
+      const cDigitalRange = customDigitalRanges.value.find(item => item.label === value.value)
       if (digitalRange) {
         range.value = digitalRange.id
+      } else if (cDigitalRange) {
+        range.value = cDigitalRange.id
       } else {
         const tempSensorsRange = ranges.analog.tempSensors.find(item => item.label === value.value)
         if (tempSensorsRange) {
@@ -54,7 +58,6 @@ export default {
           }
         }
       }
-      customDigitalRanges.value = cloneDeep(props.params.context.project.customRanges?.digital)
     })
 
     function save() {
