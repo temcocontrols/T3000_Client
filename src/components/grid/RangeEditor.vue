@@ -1,5 +1,5 @@
 <script>
-import { ref, toRaw, onMounted } from "vue";
+import { ref, toRaw, onMounted, computed } from "vue";
 import { ranges } from "src/lib/common";
 import { cloneDeep } from "lodash"
 export default {
@@ -26,6 +26,7 @@ export default {
     const range = ref(null)
     const tab = ref('digital')
     const analogTab = ref('tempSensors')
+    const tempSensorsDeg = ref('c')
     const digitalTab = ref('default')
     const customDigitalRanges = ref([])
     const addCustomDigitalRangeDialog = ref({
@@ -43,12 +44,16 @@ export default {
       if (digitalRange) {
         range.value = digitalRange.id
       } else if (cDigitalRange) {
+        digitalTab.value = "custom"
         range.value = cDigitalRange.id
       } else {
-        const tempSensorsRange = ranges.analog.tempSensors.find(item => item.label === value.value)
+        const tempSensorsRange = ranges.analog.tempSensors.find(item => item.label === value.value && item.unit === props.params.node.data.units)
         if (tempSensorsRange) {
           tab.value = 'analog'
           range.value = tempSensorsRange.id
+          if (tempSensorsRange.unit === "Deg.F") {
+            tempSensorsDeg.value = "f"
+          }
         } else {
           const analogOthersRange = ranges.analog.others.find(item => item.label === value.value)
           if (analogOthersRange) {
@@ -125,6 +130,23 @@ export default {
         data: { rangeId: id }
       });
     }
+
+    const tempSensorsComputed = computed(() => {
+      if (tempSensorsDeg.value === "c") {
+        return ranges.analog.tempSensors.filter(item => item.unit === "Deg.C")
+      }
+      return ranges.analog.tempSensors.filter(item => item.unit === "Deg.F")
+    });
+
+    function updateSelectedTempSensorDeg(e) {
+      const tempSensorsRange = ranges.analog.tempSensors.find(item => item.id === range.value)
+      if (tempSensorsRange && e === "c") {
+        range.value = range.value - 1
+      } else if (tempSensorsRange && e === "f") {
+        range.value = range.value + 1
+      }
+    }
+
     return {
       value,
       rangeEditorDialog,
@@ -142,7 +164,10 @@ export default {
       addCustomDigitalRange,
       addCustomDigitalRangeDialog,
       newDigitalRange,
-      removeCustomDigitalRange
+      removeCustomDigitalRange,
+      tempSensorsComputed,
+      tempSensorsDeg,
+      updateSelectedTempSensorDeg
     };
   },
 };
@@ -202,9 +227,16 @@ export default {
             <q-separator />
             <q-tab-panels v-model="analogTab" animated>
               <q-tab-panel name="tempSensors">
+                <div class="row items-center justify-center mb-4">
+                  <q-btn-toggle @update:model-value="updateSelectedTempSensorDeg($event)" v-model="tempSensorsDeg"
+                    no-caps rounded unelevated toggle-color="primary" color="white" text-color="primary" :options="[
+                      { label: 'Deg.C', value: 'c' },
+                      { label: 'Deg.F', value: 'f' }
+                    ]" />
+                </div>
                 <div class="grid grid-cols-2 gap-4">
-                  <q-radio v-for="item in ranges.analog.tempSensors" :key="item.id" v-model="range" :val="item.id"
-                    :label="`${item.id}. ${item.label} ${item.unit}`" />
+                  <q-radio v-for="item in tempSensorsComputed" :key="item.id" v-model="range" :val="item.id"
+                    :label="`${item.label}`" />
                 </div>
               </q-tab-panel>
               <q-tab-panel name="others">
