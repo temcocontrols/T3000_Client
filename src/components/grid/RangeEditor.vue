@@ -17,7 +17,7 @@ export default {
 
     function cancel() {
       rangeEditorDialog.value = false;
-      props.params.stopEditing();
+      props.params.stopEditing(true);
     }
 
     function onHideRangeEditorDialog() {
@@ -151,10 +151,12 @@ export default {
 <template>
   <q-dialog @hide="onHideRangeEditorDialog()" v-model="rangeEditorDialog">
     <q-card style="min-width: 700px">
-      <q-card-section>
+      <q-card-section class="row">
         <div class="text-h6">Select Range</div>
+        <q-space />
+        <q-btn icon="close" flat round dense @click="cancel()" />
       </q-card-section>
-      <q-card-section class="q-pt-none">
+      <q-card-section style="height: 60vh" class="scroll q-pt-none">
         <q-tabs v-model="tab" inline-label class="bg-primary text-white shadow-2">
           <q-tab name="digital" icon="numbers" label="Digital Units" />
           <q-tab name="analog" icon="settings_input_antenna" label="Analog Units" />
