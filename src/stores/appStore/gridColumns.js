@@ -610,6 +610,10 @@ export default {
       headerName: "Panel",
       sortable: true,
       field: "panel",
+      editable: false,
+      valueGetter: (params) => {
+        return params.context.deviceData.panelId;
+      },
       // filter: "agNumberColumnFilter",
       cellEditor: "NumericEditor",
     },
@@ -758,9 +762,12 @@ export default {
       headerName: "Panel",
       sortable: true,
       field: "panel",
+      editable: false,
+      valueGetter: (params) => {
+        return params.context.deviceData.panelId;
+      },
       // filter: "agNumberColumnFilter",
       cellEditor: "NumericEditor",
-      cellClassRules: requiredClassRules,
     },
     {
       colId: 2,

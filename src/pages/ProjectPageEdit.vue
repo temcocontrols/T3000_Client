@@ -42,6 +42,7 @@ export default {
                 productType
                 alias
                 connection
+                panelId
                 ${appNestedFields}
               }
             }
@@ -1128,6 +1129,7 @@ export default {
           ]" autofocus />
           <q-select v-model="editDeviceDialog.data.connection" :options="editDeviceDialog.connectionOptions"
             label="Connection" />
+          <q-input label="Panel ID" type="number" v-model.number="editDeviceDialog.data.panelId" />
           <q-input label="Serial Number" type="number" v-model.number="editDeviceDialog.data.serialNumber" />
           <q-input label="Network ID" type="number" v-model.number="editDeviceDialog.data.networkId" />
           <q-input label="Floor" v-model="editDeviceDialog.data.floor" />

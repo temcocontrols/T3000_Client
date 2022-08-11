@@ -10,11 +10,9 @@ export const appNestedFields = `
 inputs (orderBy: {index: asc}) {
   id
   index
-  panel
   label
   fullLabel
   autoManual
-  panel
   value
   units
   range
@@ -28,7 +26,6 @@ inputs (orderBy: {index: asc}) {
 outputs (orderBy: {index: asc}) {
   id
   index
-  panel
   label
   fullLabel
   status
@@ -38,7 +35,6 @@ outputs (orderBy: {index: asc}) {
   highVoltage
   pwmPeriod
   autoManual
-  panel
   value
   type
   hoaSwitch
