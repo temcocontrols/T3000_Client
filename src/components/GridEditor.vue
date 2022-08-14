@@ -119,6 +119,7 @@ export default {
       onGridReady(params) {
         gridApi.value = params.api;
         params.api.addEventListener("digitalRangeAdded", (ev) => { ctx.emit("gridCustomEvent", ev); })
+        params.api.addEventListener("digitalRangeUpdated", (ev) => { ctx.emit("gridCustomEvent", ev); })
         params.api.addEventListener("digitalRangeRemoved", (ev) => { ctx.emit("gridCustomEvent", ev); })
       },
       onSelectionChanged(params) {

@@ -32,7 +32,11 @@ export default {
     const addCustomDigitalRangeDialog = ref({
       active: false,
       id: 22
+    })
 
+    const editCustomDigitalRangeDialog = ref({
+      active: false,
+      data: {}
     })
 
     const newDigitalRange = ref({})
@@ -147,6 +151,22 @@ export default {
       }
     }
 
+    function editCustomDigitalRangeAction(item) {
+      editCustomDigitalRangeDialog.value.active = true
+      editCustomDigitalRangeDialog.value.data = cloneDeep(item)
+    }
+
+    function editCustomDigitalRange() {
+      editCustomDigitalRangeDialog.value.active = false
+      const itemIndex = customDigitalRanges.value.findIndex(item => item.id === editCustomDigitalRangeDialog.value.data.id)
+      customDigitalRanges.value[itemIndex] = editCustomDigitalRangeDialog.value.data
+      customDigitalRanges.value[itemIndex].label = `${editCustomDigitalRangeDialog.value.data.off}/${editCustomDigitalRangeDialog.value.data.on}`
+      props.params.api.dispatchEvent({
+        type: 'digitalRangeUpdated',
+        data: { rangeData: toRaw(customDigitalRanges.value[itemIndex]) }
+      });
+    }
+
     return {
       value,
       rangeEditorDialog,
@@ -167,7 +187,10 @@ export default {
       removeCustomDigitalRange,
       tempSensorsComputed,
       tempSensorsDeg,
-      updateSelectedTempSensorDeg
+      updateSelectedTempSensorDeg,
+      editCustomDigitalRangeDialog,
+      editCustomDigitalRangeAction,
+      editCustomDigitalRange
     };
   },
 };
@@ -206,9 +229,13 @@ export default {
                   <div v-for="item in customDigitalRanges" :key="item.id" class="custom-range-container relative">
                     <q-radio v-model="range" :val="item.id" :label="`${item.id}. ${item.label}`" />
                     <div class="actions hidden absolute top-1 right-3">
+                      <q-btn round dense color="grey-8" size="sm" icon="edit"
+                        @click="editCustomDigitalRangeAction(item)">
+                        <q-tooltip>Edit Range</q-tooltip>
+                      </q-btn>
                       <q-btn round dense color="red-8" size="sm" icon="delete" class="ml-1"
                         @click="removeCustomDigitalRange(item.id)">
-                        <q-tooltip>Delete range</q-tooltip>
+                        <q-tooltip>Delete Range</q-tooltip>
                       </q-btn>
                     </div>
                   </div>
@@ -273,6 +300,36 @@ export default {
           val => val !== newDigitalRange.off || 'On value should not be the same as off value']" />
 
           <q-toggle v-model="newDigitalRange.directInvers" label="Invers" />
+
+        </q-card-section>
+
+        <q-card-actions align="between" class="text-primary">
+          <div></div>
+          <div>
+            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn type="submit" flat label="Save" />
+          </div>
+        </q-card-actions>
+      </q-form>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog v-model="editCustomDigitalRangeDialog.active">
+    <q-card style="min-width: 600px">
+      <q-card-section class="row items-center">
+        <div class="text-h6">Edit Custom Range</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+      <q-form class="q-gutter-md" @submit="editCustomDigitalRange()">
+        <q-card-section class="scroll q-pt-none">
+          <q-input filled v-model="editCustomDigitalRangeDialog.data.off" label="Digital off *" lazy-rules
+            :rules="[val => val !== undefined && val !== null && val !== '' || 'Please type digital off value', val => val !== newDigitalRange.on || 'Off value should not be the same as on value']" />
+
+          <q-input filled v-model="editCustomDigitalRangeDialog.data.on" label="Digital on *" lazy-rules :rules="[val => val !== undefined && val !== null && val !== '' || 'Please type digital on value',
+          val => val !== editCustomDigitalRangeDialog.data.off || 'On value should not be the same as off value']" />
+
+          <q-toggle v-model="editCustomDigitalRangeDialog.data.directInvers" label="Invers" />
 
         </q-card-section>
 

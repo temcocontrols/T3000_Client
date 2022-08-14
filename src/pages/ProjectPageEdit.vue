@@ -962,6 +962,11 @@ export default {
         const ranges = toRaw(projectClone.value.project.customRanges)
         ranges.digital.push(event.data.rangeData)
         updateProject({ where: { id: id.value }, data: { customRanges: ranges } })
+      } else if (event.type === "digitalRangeUpdated") {
+        const ranges = toRaw(projectClone.value.project.customRanges)
+        const updatedRangeIndex = ranges.digital.findIndex(item => item.id === event.data.rangeData.id)
+        ranges.digital[updatedRangeIndex] = event.data.rangeData
+        updateProject({ where: { id: id.value }, data: { customRanges: ranges } })
       } else if (event.type === "digitalRangeRemoved") {
         const ranges = toRaw(projectClone.value.project.customRanges)
         ranges.digital.splice(ranges.digital.findIndex(item => item.id === event.data.rangeId), 1);
