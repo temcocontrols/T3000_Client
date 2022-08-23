@@ -174,7 +174,7 @@ export default {
         <q-table :rows="filteredRows" selection="multiple" v-model:selected="selected" :columns="columns" row-key="id">
           <template v-slot:top>
             <q-btn color="primary" label="Add row" @click="addNewRow" />
-            <q-btn v-if="selected.length" class="q-ml-sm" color="primary" label="Remove selected rows"
+            <q-btn v-if="selected.length" class="q-ml-sm" color="red" label="Remove selected rows"
               @click="deleteSelected()" />
           </template>
           <template v-slot:header-cell-id></template>
