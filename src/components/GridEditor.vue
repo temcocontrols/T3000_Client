@@ -121,6 +121,10 @@ export default {
         params.api.addEventListener("digitalRangeAdded", (ev) => { ctx.emit("gridCustomEvent", ev); })
         params.api.addEventListener("digitalRangeUpdated", (ev) => { ctx.emit("gridCustomEvent", ev); })
         params.api.addEventListener("digitalRangeRemoved", (ev) => { ctx.emit("gridCustomEvent", ev); })
+
+        params.api.addEventListener("analogRangeAdded", (ev) => { ctx.emit("gridCustomEvent", ev); })
+        params.api.addEventListener("analogRangeRemoved", (ev) => { ctx.emit("gridCustomEvent", ev); })
+        params.api.addEventListener("analogRangeUpdated", (ev) => { ctx.emit("gridCustomEvent", ev); })
       },
       onSelectionChanged(params) {
         selectedRows.value = params.api.getSelectedRows();

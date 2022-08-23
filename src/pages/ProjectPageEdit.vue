@@ -971,6 +971,19 @@ export default {
         const ranges = toRaw(projectClone.value.project.customRanges)
         ranges.digital.splice(ranges.digital.findIndex(item => item.id === event.data.rangeId), 1);
         updateProject({ where: { id: id.value }, data: { customRanges: ranges } })
+      } else if (event.type === "analogRangeAdded") {
+        const ranges = toRaw(projectClone.value.project.customRanges)
+        ranges.analog.push(event.data.rangeData)
+        updateProject({ where: { id: id.value }, data: { customRanges: ranges } })
+      } else if (event.type === "analogRangeUpdated") {
+        const ranges = toRaw(projectClone.value.project.customRanges)
+        const updatedRangeIndex = ranges.analog.findIndex(item => item.id === event.data.rangeData.id)
+        ranges.analog[updatedRangeIndex] = event.data.rangeData
+        updateProject({ where: { id: id.value }, data: { customRanges: ranges } })
+      } else if (event.type === "analogRangeRemoved") {
+        const ranges = toRaw(projectClone.value.project.customRanges)
+        ranges.analog.splice(ranges.analog.findIndex(item => item.id === event.data.rangeId), 1);
+        updateProject({ where: { id: id.value }, data: { customRanges: ranges } })
       }
     }
 

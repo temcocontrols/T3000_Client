@@ -29,27 +29,62 @@ export default {
     const tempSensorsDeg = ref('c')
     const digitalTab = ref('default')
     const customDigitalRanges = ref([])
-    const addCustomDigitalRangeDialog = ref({
+    const addDigitalRangeDialog = ref({
       active: false,
       id: 22
     })
 
-    const editCustomDigitalRangeDialog = ref({
+    const editDigitalRangeDialog = ref({
       active: false,
       data: {}
     })
 
     const newDigitalRange = ref({})
 
+    const customAnalogRanges = ref([])
+    const newAnalogRange = ref({})
+    const addAnalogRangeDialog = ref({
+      active: false,
+      selected: [],
+    })
+    const editAnalogRangeDialog = ref({
+      active: false,
+      selected: [],
+      data: {}
+    })
+    const analogRangePointHeaders = [
+      {
+        name: "voltage",
+        label: "Voltage",
+        sortable: false,
+        field: "voltage",
+        align: 'left',
+      },
+      {
+        name: "value",
+        label: "Value",
+        sortable: false,
+        field: "value",
+        align: 'left',
+      }
+    ]
+
     onMounted(() => {
       customDigitalRanges.value = cloneDeep(props.params.context.project.customRanges?.digital)
       const digitalRange = ranges.digital.find(item => item.label === value.value)
       const cDigitalRange = customDigitalRanges.value.find(item => item.label === value.value)
+
+      customAnalogRanges.value = cloneDeep(props.params.context.project.customRanges?.analog)
+      const cAnalogRange = customAnalogRanges.value.find(item => item.label === value.value)
       if (digitalRange) {
         range.value = digitalRange.id
       } else if (cDigitalRange) {
         digitalTab.value = "custom"
         range.value = cDigitalRange.id
+      } else if (cAnalogRange) {
+        tab.value = 'analog'
+        analogTab.value = 'custom'
+        range.value = cAnalogRange.id
       } else {
         const tempSensorsRange = ranges.analog.tempSensors.find(item => item.label === value.value && item.unit === props.params.node.data.units)
         if (tempSensorsRange) {
@@ -73,6 +108,7 @@ export default {
       const data = props.params.node.data
       const digitalRange = ranges.digital.find(item => item.id === range.value)
       const cDigitalRange = customDigitalRanges.value.find(item => item.id === range.value)
+      const cAnalogRange = customAnalogRanges.value.find(item => item.id === range.value)
       if (digitalRange) {
         data.value = digitalRange.off
         data.type = "Digital"
@@ -85,6 +121,12 @@ export default {
         data.units = null
         data.calibration = null
         value.value = cDigitalRange.label
+      } else if (cAnalogRange) {
+        data.value = cAnalogRange.points[0].value.toString()
+        data.type = "Analog"
+        data.units = cAnalogRange.unit
+        data.calibration = null
+        value.value = cAnalogRange.label
       } else {
         data.type = "Analog"
         if (!parseFloat(data.value)) {
@@ -110,14 +152,14 @@ export default {
       });
       props.params.stopEditing();
     }
-    function addCustomDigitalRangeAction() {
+    function addDigitalRangeAction() {
       newDigitalRange.value = { directInvers: false }
-      addCustomDigitalRangeDialog.value.active = true
+      addDigitalRangeDialog.value.active = true
     }
-    function addCustomDigitalRange() {
-      addCustomDigitalRangeDialog.value.active = false
-      addCustomDigitalRangeDialog.value.id = 23 + customDigitalRanges.value.length
-      newDigitalRange.value.id = addCustomDigitalRangeDialog.value.id
+    function addDigitalRange() {
+      addDigitalRangeDialog.value.active = false
+      addDigitalRangeDialog.value.id = 23 + customDigitalRanges.value.length
+      newDigitalRange.value.id = addDigitalRangeDialog.value.id
       newDigitalRange.value.label = `${newDigitalRange.value.off}/${newDigitalRange.value.on}`
       customDigitalRanges.value.push(toRaw(newDigitalRange.value))
       props.params.api.dispatchEvent({
@@ -127,7 +169,7 @@ export default {
       range.value = cloneDeep(newDigitalRange.value.id)
     }
 
-    function removeCustomDigitalRange(id) {
+    function removeDigitalRange(id) {
       customDigitalRanges.value.splice(customDigitalRanges.value.findIndex(item => item.id === id), 1);
       props.params.api.dispatchEvent({
         type: 'digitalRangeRemoved',
@@ -151,20 +193,89 @@ export default {
       }
     }
 
-    function editCustomDigitalRangeAction(item) {
-      editCustomDigitalRangeDialog.value.active = true
-      editCustomDigitalRangeDialog.value.data = cloneDeep(item)
+    function editDigitalRangeAction(item) {
+      editDigitalRangeDialog.value.active = true
+      editDigitalRangeDialog.value.data = cloneDeep(item)
     }
 
-    function editCustomDigitalRange() {
-      editCustomDigitalRangeDialog.value.active = false
-      const itemIndex = customDigitalRanges.value.findIndex(item => item.id === editCustomDigitalRangeDialog.value.data.id)
-      customDigitalRanges.value[itemIndex] = editCustomDigitalRangeDialog.value.data
-      customDigitalRanges.value[itemIndex].label = `${editCustomDigitalRangeDialog.value.data.off}/${editCustomDigitalRangeDialog.value.data.on}`
+    function editDigitalRange() {
+      editDigitalRangeDialog.value.active = false
+      const itemIndex = customDigitalRanges.value.findIndex(item => item.id === editDigitalRangeDialog.value.data.id)
+      customDigitalRanges.value[itemIndex] = editDigitalRangeDialog.value.data
+      customDigitalRanges.value[itemIndex].label = `${editDigitalRangeDialog.value.data.off}/${editDigitalRangeDialog.value.data.on}`
       props.params.api.dispatchEvent({
         type: 'digitalRangeUpdated',
         data: { rangeData: toRaw(customDigitalRanges.value[itemIndex]) }
       });
+    }
+
+    function addAnalogRangeAction() {
+      newAnalogRange.value = { label: "Table " + (customAnalogRanges.value.length + 1), signalType: "Thermistor Dry Contact", points: [{ voltage: 0, value: 0 }], selected: [] }
+      addAnalogRangeDialog.value.active = true
+      addAnalogRangeDialog.value.selected = []
+
+    }
+
+    function addAnalogRange() {
+      addAnalogRangeDialog.value.active = false
+      newAnalogRange.value.id = 50 + customAnalogRanges.value.length
+      customAnalogRanges.value.push(toRaw(newAnalogRange.value))
+      props.params.api.dispatchEvent({
+        type: 'analogRangeAdded',
+        data: { rangeData: toRaw(newAnalogRange.value) }
+      });
+      range.value = cloneDeep(newAnalogRange.value.id)
+    }
+
+    function editAnalogRangeAction(item) {
+      editAnalogRangeDialog.value.active = true
+      editAnalogRangeDialog.value.selected = []
+      editAnalogRangeDialog.value.data = cloneDeep(item)
+    }
+    function editAnalogRange() {
+      editAnalogRangeDialog.value.active = false
+      const itemIndex = customAnalogRanges.value.findIndex(item => item.id === editAnalogRangeDialog.value.data.id)
+      customAnalogRanges.value[itemIndex] = editAnalogRangeDialog.value.data
+      props.params.api.dispatchEvent({
+        type: 'analogRangeUpdated',
+        data: { rangeData: toRaw(customAnalogRanges.value[itemIndex]) }
+      });
+    }
+
+    function removeAnalogRange(id) {
+      customAnalogRanges.value.splice(customAnalogRanges.value.findIndex(item => item.id === id), 1);
+      props.params.api.dispatchEvent({
+        type: 'analogRangeRemoved',
+        data: { rangeId: id }
+      });
+    }
+
+    function addNewAnalogPoint(points) {
+      if (points.length === 0) {
+        points.push({ voltage: 0.0, value: 0 })
+      } else {
+        const lastPoint = points[points.length - 1]
+        points.push({ voltage: lastPoint.voltage + 1, value: lastPoint.value + 1 })
+      }
+
+    }
+
+    function deleteSelectedPoints(mode) {
+      if (mode === "edit") {
+        editAnalogRangeDialog.value.data.points = editAnalogRangeDialog.value.data.points.filter(item => !editAnalogRangeDialog.value.selected.some(sItem => item.value === sItem.value))
+        editAnalogRangeDialog.value.selected = []
+        if (editAnalogRangeDialog.value.data.points.length === 0) {
+          editAnalogRangeDialog.value.data.points.push({ voltage: 0, value: 0 })
+        }
+      } else {
+        newAnalogRange.value.points = newAnalogRange.value.points.filter(item => !addAnalogRangeDialog.value.selected.some(sItem => item.value === sItem.value))
+        addAnalogRangeDialog.value.selected = []
+        if (newAnalogRange.value.points.length === 0) {
+          newAnalogRange.value.points.push({ voltage: 0, value: 0 })
+        }
+      }
+
+
     }
 
     return {
@@ -180,17 +291,29 @@ export default {
       ranges,
       customDigitalRanges,
       save,
-      addCustomDigitalRangeAction,
-      addCustomDigitalRange,
-      addCustomDigitalRangeDialog,
+      addDigitalRangeAction,
+      addDigitalRange,
+      addDigitalRangeDialog,
       newDigitalRange,
-      removeCustomDigitalRange,
+      removeDigitalRange,
       tempSensorsComputed,
       tempSensorsDeg,
       updateSelectedTempSensorDeg,
-      editCustomDigitalRangeDialog,
-      editCustomDigitalRangeAction,
-      editCustomDigitalRange
+      editDigitalRangeDialog,
+      editDigitalRangeAction,
+      editDigitalRange,
+      customAnalogRanges,
+      newAnalogRange,
+      addAnalogRangeDialog,
+      analogRangePointHeaders,
+      addAnalogRangeAction,
+      addAnalogRange,
+      editAnalogRangeAction,
+      editAnalogRange,
+      removeAnalogRange,
+      addNewAnalogPoint,
+      editAnalogRangeDialog,
+      deleteSelectedPoints
     };
   },
 };
@@ -229,19 +352,18 @@ export default {
                   <div v-for="item in customDigitalRanges" :key="item.id" class="custom-range-container relative">
                     <q-radio v-model="range" :val="item.id" :label="`${item.id}. ${item.label}`" />
                     <div class="actions hidden absolute top-1 right-3">
-                      <q-btn round dense color="grey-8" size="sm" icon="edit"
-                        @click="editCustomDigitalRangeAction(item)">
+                      <q-btn round dense color="grey-8" size="sm" icon="edit" @click="editDigitalRangeAction(item)">
                         <q-tooltip>Edit Range</q-tooltip>
                       </q-btn>
                       <q-btn round dense color="red-8" size="sm" icon="delete" class="ml-1"
-                        @click="removeCustomDigitalRange(item.id)">
+                        @click="removeDigitalRange(item.id)">
                         <q-tooltip>Delete Range</q-tooltip>
                       </q-btn>
                     </div>
                   </div>
                 </div>
                 <div v-else class="mb-4">No custom ranges.</div>
-                <q-btn color="primary" label="Add custom range" @click="addCustomDigitalRangeAction"
+                <q-btn color="primary" label="Add custom range" @click="addDigitalRangeAction"
                   :disable="customDigitalRanges.length > 5" />
               </q-tab-panel>
             </q-tab-panels>
@@ -250,6 +372,7 @@ export default {
             <q-tabs v-model="analogTab" inline-label class="bg-secondary text-white shadow-2">
               <q-tab name="tempSensors" icon="thermostat" label="Temp Sensors" />
               <q-tab name="others" icon="list" label="Others" />
+              <q-tab name="custom" icon="tune" label="Custom" />
             </q-tabs>
             <q-separator />
             <q-tab-panels v-model="analogTab" animated>
@@ -272,6 +395,25 @@ export default {
                     :label="`${item.id}. ${item.label}`" />
                 </div>
               </q-tab-panel>
+              <q-tab-panel name="custom">
+                <div class="grid grid-rows-3 grid-flow-col gap-4 mb-4" v-if="customAnalogRanges?.length">
+                  <div v-for="item in customAnalogRanges" :key="item.id" class="custom-range-container relative">
+                    <q-radio v-model="range" :val="item.id" :label="`${item.id}. ${item.label}`" />
+                    <div class="actions hidden absolute top-1 right-3">
+                      <q-btn round dense color="grey-8" size="sm" icon="edit" @click="editAnalogRangeAction(item)">
+                        <q-tooltip>Edit Range</q-tooltip>
+                      </q-btn>
+                      <q-btn round dense color="red-8" size="sm" icon="delete" class="ml-1"
+                        @click="removeAnalogRange(item.id)">
+                        <q-tooltip>Delete Range</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="mb-4">No custom ranges.</div>
+                <q-btn color="primary" label="Add custom range" @click="addAnalogRangeAction()"
+                  :disable="customAnalogRanges.length > 5" />
+              </q-tab-panel>
             </q-tab-panels>
           </q-tab-panel>
         </q-tab-panels>
@@ -284,14 +426,14 @@ export default {
     </q-card>
   </q-dialog>
 
-  <q-dialog v-model="addCustomDigitalRangeDialog.active">
+  <q-dialog v-model="addDigitalRangeDialog.active">
     <q-card style="min-width: 600px">
       <q-card-section class="row items-center">
         <div class="text-h6">Add Custom Range</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
-      <q-form class="q-gutter-md" @submit="addCustomDigitalRange()">
+      <q-form class="q-gutter-md" @submit="addDigitalRange()">
         <q-card-section class="scroll q-pt-none">
           <q-input filled v-model="newDigitalRange.off" label="Digital off *" lazy-rules
             :rules="[val => val !== undefined && val !== null && val !== '' || 'Please type digital off value', val => val !== newDigitalRange.on || 'Off value should not be the same as on value']" />
@@ -314,23 +456,152 @@ export default {
     </q-card>
   </q-dialog>
 
-  <q-dialog v-model="editCustomDigitalRangeDialog.active">
+  <q-dialog v-model="editDigitalRangeDialog.active">
     <q-card style="min-width: 600px">
       <q-card-section class="row items-center">
         <div class="text-h6">Edit Custom Range</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
-      <q-form class="q-gutter-md" @submit="editCustomDigitalRange()">
+      <q-form class="q-gutter-md" @submit="editDigitalRange()">
         <q-card-section class="scroll q-pt-none">
-          <q-input filled v-model="editCustomDigitalRangeDialog.data.off" label="Digital off *" lazy-rules
+          <q-input filled v-model="editDigitalRangeDialog.data.off" label="Digital off *" lazy-rules
             :rules="[val => val !== undefined && val !== null && val !== '' || 'Please type digital off value', val => val !== newDigitalRange.on || 'Off value should not be the same as on value']" />
 
-          <q-input filled v-model="editCustomDigitalRangeDialog.data.on" label="Digital on *" lazy-rules :rules="[val => val !== undefined && val !== null && val !== '' || 'Please type digital on value',
-          val => val !== editCustomDigitalRangeDialog.data.off || 'On value should not be the same as off value']" />
+          <q-input filled v-model="editDigitalRangeDialog.data.on" label="Digital on *" lazy-rules :rules="[val => val !== undefined && val !== null && val !== '' || 'Please type digital on value',
+          val => val !== editDigitalRangeDialog.data.off || 'On value should not be the same as off value']" />
 
-          <q-toggle v-model="editCustomDigitalRangeDialog.data.directInvers" label="Invers" />
+          <q-toggle v-model="editDigitalRangeDialog.data.directInvers" label="Invers" />
 
+        </q-card-section>
+
+        <q-card-actions align="between" class="text-primary">
+          <div></div>
+          <div>
+            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn type="submit" flat label="Save" />
+          </div>
+        </q-card-actions>
+      </q-form>
+    </q-card>
+  </q-dialog>
+
+  <!-- Add custom analog range dialog -->
+  <q-dialog v-model="addAnalogRangeDialog.active" persistent>
+    <q-card style="min-width: 690px">
+      <q-card-section class="row items-center">
+        <div class="text-h6">Add Custom Range</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+      <q-form class="q-gutter-md" @submit="addAnalogRange()">
+
+        <q-card-section class="scroll q-pt-none" style="height: 55vh">
+          <div class="flex-nowrap row justify-center mb-4 gap-3">
+            <q-input filled v-model="newAnalogRange.label" label="Label" lazy-rules
+              :rules="[val => val !== undefined && val !== null && val !== '' || 'This field is required!']" />
+            <q-input filled v-model="newAnalogRange.unit" label="Units" lazy-rules />
+            <q-select filled v-model="newAnalogRange.signalType" label="Signal Type" :options="[
+              'Thermistor Dry Contact',
+              '4-20 ma',
+              '0-5 V',
+              '0-10 V',
+              'PT 1K',
+            ]" />
+          </div>
+          <q-table :rows="newAnalogRange.points" selection="multiple" v-model:selected="addAnalogRangeDialog.selected"
+            :columns="analogRangePointHeaders" row-key="value" hide-pagination :pagination="{ rowsPerPage: 0 }">
+            <template v-slot:top>
+              <q-btn color="primary" label="Add new point" @click="addNewAnalogPoint(newAnalogRange.points)" />
+              <q-btn v-if="addAnalogRangeDialog.selected.length" class="q-ml-sm" color="red"
+                label="Remove selected points" @click="deleteSelectedPoints('add')" />
+            </template>
+            <template v-slot:body-cell-voltage="props">
+              <q-td :props="props">
+                <q-input filled type="number" v-model.number="props.row.voltage" label="Voltage" min="0" step="0.1" />
+              </q-td>
+            </template>
+            <template v-slot:body-cell-value="props">
+              <q-td :props="props">
+                <q-input filled type="number" v-model.number="props.row.value" label="Value" min="0" step="1" />
+              </q-td>
+            </template>
+          </q-table>
+          <!-- <div class="row justify-center items-center gap-4">
+            <q-input filled label="Points" type="number" v-model.number="newAnalogRange.points" step="1" />
+            <div class="column gap-1 border border-dashed border-gray-400 p-4">
+              First Point
+              <q-input filled dense label="Volts" type="number" v-model.number="newAnalogRange.firstPointVolts"
+                step="0.1" />
+              <q-input filled dense label="Value" type="number" v-model.number="newAnalogRange.firstPointValue"
+                step="1" />
+            </div>
+
+            <div class="column gap-1 border border-dashed border-gray-400 p-4">
+              Last Point
+              <q-input filled dense label="Volts" type="number" v-model.number="newAnalogRange.lastPointVolts"
+                step="0.1" />
+              <q-input filled dense label="Value" type="number" v-model.number="newAnalogRange.lastPointValue"
+                step="1" />
+            </div>
+          </div> -->
+
+        </q-card-section>
+
+        <q-card-actions align="between" class="text-primary">
+          <div></div>
+          <div>
+            <q-btn flat label="Cancel" v-close-popup />
+            <q-btn type="submit" flat label="Save" />
+          </div>
+        </q-card-actions>
+      </q-form>
+    </q-card>
+  </q-dialog>
+
+  <!-- Edit custom analog range dialog -->
+  <q-dialog v-model="editAnalogRangeDialog.active" persistent>
+    <q-card style="min-width: 690px">
+      <q-card-section class="row items-center">
+        <div class="text-h6">Add Custom Range</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+      <q-form class="q-gutter-md" @submit="editAnalogRange()">
+
+        <q-card-section class="scroll q-pt-none" style="height: 55vh">
+          <div class="flex-nowrap row justify-center mb-4 gap-4">
+            <q-input filled v-model="editAnalogRangeDialog.data.label" label="Label" lazy-rules
+              :rules="[val => val !== undefined && val !== null && val !== '' || 'This field is required!']" />
+            <q-input filled v-model="editAnalogRangeDialog.data.unit" label="Units" lazy-rules />
+            <q-select filled v-model="editAnalogRangeDialog.data.signalType" label="Signal Type" :options="[
+              'Thermistor Dry Contact',
+              '4-20 ma',
+              '0-5 V',
+              '0-10 V',
+              'PT 1K',
+            ]" />
+          </div>
+          <q-table :rows="editAnalogRangeDialog.data.points" selection="multiple"
+            v-model:selected="editAnalogRangeDialog.selected" :columns="analogRangePointHeaders" row-key="value"
+            hide-pagination :pagination="{ rowsPerPage: 0 }">
+            <template v-slot:top>
+              <q-btn color="primary" label="Add new point"
+                @click="addNewAnalogPoint(editAnalogRangeDialog.data.points)" />
+              <q-btn v-if="editAnalogRangeDialog.selected.length" class="q-ml-sm" color="red"
+                label="Remove selected points" @click="deleteSelectedPoints('edit')" />
+            </template>
+            <template v-slot:body-cell-voltage="props">
+              <q-td :props="props">
+                <q-input filled type="number" v-model.number="props.row.voltage" label="Voltage" min="0" step="0.1" />
+              </q-td>
+            </template>
+            <template v-slot:body-cell-value="props">
+              <q-td :props="props">
+                <q-input filled type="number" v-model.number="props.row.value" label="Value" min="0" step="1" />
+              </q-td>
+            </template>
+          </q-table>
         </q-card-section>
 
         <q-card-actions align="between" class="text-primary">
