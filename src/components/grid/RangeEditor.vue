@@ -158,7 +158,7 @@ export default {
     }
     function addDigitalRange() {
       addDigitalRangeDialog.value.active = false
-      addDigitalRangeDialog.value.id = 23 + customDigitalRanges.value.length
+      addDigitalRangeDialog.value.id = uniqueRangeId(23, customDigitalRanges.value)
       newDigitalRange.value.id = addDigitalRangeDialog.value.id
       newDigitalRange.value.label = `${newDigitalRange.value.off}/${newDigitalRange.value.on}`
       customDigitalRanges.value.push(toRaw(newDigitalRange.value))
@@ -218,7 +218,7 @@ export default {
 
     function addAnalogRange() {
       addAnalogRangeDialog.value.active = false
-      newAnalogRange.value.id = 50 + customAnalogRanges.value.length
+      newAnalogRange.value.id = uniqueRangeId(50, customAnalogRanges.value)
       customAnalogRanges.value.push(toRaw(newAnalogRange.value))
       props.params.api.dispatchEvent({
         type: 'analogRangeAdded',
@@ -274,8 +274,15 @@ export default {
           newAnalogRange.value.points.push({ voltage: 0, value: 0 })
         }
       }
+    }
 
+    function uniqueRangeId(id, ranges) {
+      if (ranges.map(item => item.id).includes(id)) {
+        id++
+        return uniqueRangeId(id, ranges)
+      }
 
+      return id
     }
 
     return {
