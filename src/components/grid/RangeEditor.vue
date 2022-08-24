@@ -518,12 +518,15 @@ export default {
             </template>
             <template v-slot:body-cell-voltage="props">
               <q-td :props="props">
-                <q-input filled type="number" v-model.number="props.row.voltage" label="Voltage" min="0" step="0.1" />
+                <q-input filled type="number" v-model.number="props.row.voltage" label="Voltage" min="0" step="0.1"
+                  lazy-rules
+                  :rules="[val => (props.rowIndex === 0 || val > newAnalogRange.points[props.rowIndex - 1].voltage) || 'Voltage should be bigger the the previous row voltage!']" />
               </q-td>
             </template>
             <template v-slot:body-cell-value="props">
               <q-td :props="props">
-                <q-input filled type="number" v-model.number="props.row.value" label="Value" min="0" step="1" />
+                <q-input filled type="number" v-model.number="props.row.value" label="Value" min="0" step="1" lazy-rules
+                  :rules="[val => (props.rowIndex === 0 || val > newAnalogRange.points[props.rowIndex - 1].value) || 'Value should be bigger the the previous row value!']" />
               </q-td>
             </template>
           </q-table>
@@ -563,7 +566,7 @@ export default {
   <q-dialog v-model="editAnalogRangeDialog.active" persistent>
     <q-card style="min-width: 690px">
       <q-card-section class="row items-center">
-        <div class="text-h6">Add Custom Range</div>
+        <div class="text-h6">Edit Custom Range</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
@@ -593,12 +596,15 @@ export default {
             </template>
             <template v-slot:body-cell-voltage="props">
               <q-td :props="props">
-                <q-input filled type="number" v-model.number="props.row.voltage" label="Voltage" min="0" step="0.1" />
+                <q-input filled type="number" v-model.number="props.row.voltage" label="Voltage" min="0" step="0.1"
+                  lazy-rules
+                  :rules="[val => (props.rowIndex === 0 || val > editAnalogRangeDialog.data.points[props.rowIndex - 1].voltage) || 'Voltage should be bigger the the previous row voltage!']" />
               </q-td>
             </template>
             <template v-slot:body-cell-value="props">
               <q-td :props="props">
-                <q-input filled type="number" v-model.number="props.row.value" label="Value" min="0" step="1" />
+                <q-input filled type="number" v-model.number="props.row.value" label="Value" min="0" step="1" lazy-rules
+                  :rules="[val => (props.rowIndex === 0 || val > editAnalogRangeDialog.data.points[props.rowIndex - 1].value) || 'Value should be bigger the the previous row value!']" />
               </q-td>
             </template>
           </q-table>
