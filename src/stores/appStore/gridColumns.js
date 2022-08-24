@@ -710,10 +710,33 @@ export default {
           const range = ranges.digital.find(
             (item) => item.label === params.data.range
           );
+          const customDigitalRange =
+            params.context.project.customRanges?.digital.find(
+              (item) => item.label === params.data.range
+            );
+
+          const customAnalogRange =
+            params.context.project.customRanges?.analog.find(
+              (item) => item.label === params.data.range
+            );
           if (range) {
             return {
               component: "agSelectCellEditor",
               params: { values: [range.off, range.on] },
+            };
+          } else if (customDigitalRange) {
+            return {
+              component: "agSelectCellEditor",
+              params: {
+                values: [customDigitalRange.off, customDigitalRange.on],
+              },
+            };
+          } else if (customAnalogRange) {
+            return {
+              component: "agSelectCellEditor",
+              params: {
+                values: customAnalogRange.points.map((item) => item.value),
+              },
             };
           }
         }
@@ -806,10 +829,35 @@ export default {
           const range = ranges.digital.find(
             (item) => item.label === params.data.range
           );
+          const customDigitalRange =
+            params.context.project.customRanges?.digital.find(
+              (item) => item.label === params.data.range
+            );
+
+          const customAnalogRange =
+            params.context.project.customRanges?.analog.find(
+              (item) => item.label === params.data.range
+            );
           if (range) {
             return {
               component: "agSelectCellEditor",
               params: { values: [range.off, range.on] },
+            };
+          } else if (customDigitalRange) {
+            return {
+              component: "agSelectCellEditor",
+              params: {
+                values: [customDigitalRange.off, customDigitalRange.on],
+              },
+            };
+          } else if (customAnalogRange) {
+            return {
+              component: "agSelectCellEditor",
+              params: {
+                values: customAnalogRange.points.map((item) =>
+                  item.value.toString()
+                ),
+              },
             };
           }
         }
