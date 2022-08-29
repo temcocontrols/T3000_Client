@@ -158,7 +158,7 @@ export default {
     }
     function addDigitalRange() {
       addDigitalRangeDialog.value.active = false
-      addDigitalRangeDialog.value.id = uniqueRangeId(23, customDigitalRanges.value)
+      addDigitalRangeDialog.value.id = uniqueId(23, customDigitalRanges.value)
       newDigitalRange.value.id = addDigitalRangeDialog.value.id
       newDigitalRange.value.label = `${newDigitalRange.value.off}/${newDigitalRange.value.on}`
       customDigitalRanges.value.push(toRaw(newDigitalRange.value))
@@ -218,7 +218,7 @@ export default {
 
     function addAnalogRange() {
       addAnalogRangeDialog.value.active = false
-      newAnalogRange.value.id = uniqueRangeId(50, customAnalogRanges.value)
+      newAnalogRange.value.id = uniqueId(50, customAnalogRanges.value)
       customAnalogRanges.value.push(toRaw(newAnalogRange.value))
       props.params.api.dispatchEvent({
         type: 'analogRangeAdded',
@@ -252,10 +252,10 @@ export default {
 
     function addNewAnalogPoint(points) {
       if (points.length === 0) {
-        points.push({ voltage: 0.0, value: 0 })
+        points.push({ id: uniqueId(1, points), voltage: 0.0, value: 0 })
       } else {
         const lastPoint = points[points.length - 1]
-        points.push({ voltage: lastPoint.voltage + 1, value: lastPoint.value + 1 })
+        points.push({ id: uniqueId(1, points), voltage: lastPoint.voltage + 1, value: lastPoint.value + 1 })
       }
 
     }
@@ -271,15 +271,15 @@ export default {
         newAnalogRange.value.points = newAnalogRange.value.points.filter(item => !addAnalogRangeDialog.value.selected.some(sItem => item.value === sItem.value))
         addAnalogRangeDialog.value.selected = []
         if (newAnalogRange.value.points.length === 0) {
-          newAnalogRange.value.points.push({ voltage: 0, value: 0 })
+          newAnalogRange.value.points.push({ id: 1, voltage: 0, value: 0 })
         }
       }
     }
 
-    function uniqueRangeId(id, ranges) {
-      if (ranges.map(item => item.id).includes(id)) {
+    function uniqueId(id, items) {
+      if (items.map(item => item.id).includes(id)) {
         id++
-        return uniqueRangeId(id, ranges)
+        return uniqueId(id, items)
       }
 
       return id
@@ -517,7 +517,7 @@ export default {
             ]" />
           </div>
           <q-table :rows="newAnalogRange.points" selection="multiple" v-model:selected="addAnalogRangeDialog.selected"
-            :columns="analogRangePointHeaders" row-key="value" hide-pagination :pagination="{ rowsPerPage: 0 }">
+            :columns="analogRangePointHeaders" row-key="id" hide-pagination :pagination="{ rowsPerPage: 0 }">
             <template v-slot:top>
               <q-btn color="primary" label="Add new point" @click="addNewAnalogPoint(newAnalogRange.points)" />
               <q-btn v-if="addAnalogRangeDialog.selected.length" class="q-ml-sm" color="red"
@@ -537,24 +537,6 @@ export default {
               </q-td>
             </template>
           </q-table>
-          <!-- <div class="row justify-center items-center gap-4">
-            <q-input filled label="Points" type="number" v-model.number="newAnalogRange.points" step="1" />
-            <div class="column gap-1 border border-dashed border-gray-400 p-4">
-              First Point
-              <q-input filled dense label="Volts" type="number" v-model.number="newAnalogRange.firstPointVolts"
-                step="0.1" />
-              <q-input filled dense label="Value" type="number" v-model.number="newAnalogRange.firstPointValue"
-                step="1" />
-            </div>
-
-            <div class="column gap-1 border border-dashed border-gray-400 p-4">
-              Last Point
-              <q-input filled dense label="Volts" type="number" v-model.number="newAnalogRange.lastPointVolts"
-                step="0.1" />
-              <q-input filled dense label="Value" type="number" v-model.number="newAnalogRange.lastPointValue"
-                step="1" />
-            </div>
-          </div> -->
 
         </q-card-section>
 
@@ -593,7 +575,7 @@ export default {
             ]" />
           </div>
           <q-table :rows="editAnalogRangeDialog.data.points" selection="multiple"
-            v-model:selected="editAnalogRangeDialog.selected" :columns="analogRangePointHeaders" row-key="value"
+            v-model:selected="editAnalogRangeDialog.selected" :columns="analogRangePointHeaders" row-key="id"
             hide-pagination :pagination="{ rowsPerPage: 0 }">
             <template v-slot:top>
               <q-btn color="primary" label="Add new point"
