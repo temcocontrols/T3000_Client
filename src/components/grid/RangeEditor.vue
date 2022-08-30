@@ -340,12 +340,15 @@ export default {
           <q-tab name="analog" icon="settings_input_antenna" label="Analog Units" />
         </q-tabs>
         <q-separator />
-        <q-tab-panels v-model="tab" animated>
+        <q-tab-panels v-model="tab" animated class="bg-slate-200">
           <q-tab-panel name="digital">
-            <q-tabs v-model="digitalTab" inline-label class="bg-secondary text-white shadow-2">
-              <q-tab name="default" icon="list" label="Default" />
-              <q-tab name="custom" icon="tune" label="Custom" />
-            </q-tabs>
+            <div class="flex justify-center mb-2">
+              <q-btn-toggle v-model="digitalTab" no-caps rounded unelevated toggle-color="primary" color="white"
+                text-color="primary" :options="[
+                  { label: 'Default', value: 'default' },
+                  { label: 'Custom', value: 'custom' }
+                ]" class="border border-solid border-color-primary" />
+            </div>
             <q-separator />
             <q-tab-panels v-model="digitalTab" animated>
               <q-tab-panel name="default">
@@ -376,12 +379,14 @@ export default {
             </q-tab-panels>
           </q-tab-panel>
           <q-tab-panel name="analog">
-            <q-tabs v-model="analogTab" inline-label class="bg-secondary text-white shadow-2">
-              <q-tab name="tempSensors" icon="thermostat" label="Temp Sensors" />
-              <q-tab name="others" icon="list" label="Others" />
-              <q-tab name="custom" icon="tune" label="Custom" />
-            </q-tabs>
-            <q-separator />
+            <div class="flex justify-center mb-2">
+              <q-btn-toggle v-model="analogTab" no-caps rounded unelevated toggle-color="primary" color="white"
+                text-color="primary" :options="[
+                  { label: 'Temp Sensors', value: 'tempSensors' },
+                  { label: 'Others', value: 'others' },
+                  { label: 'Custom', value: 'custom' }
+                ]" class="border border-solid border-color-primary" />
+            </div>
             <q-tab-panels v-model="analogTab" animated>
               <q-tab-panel name="tempSensors">
                 <div class="row items-center justify-center mb-4">
@@ -622,5 +627,13 @@ export default {
 
 .custom-range-container:hover .actions {
   display: inline-block !important;
+}
+
+.border-color-primary {
+  border-color: #1976d2;
+}
+
+.q-tab-panel {
+  padding-top: 8px;
 }
 </style>
