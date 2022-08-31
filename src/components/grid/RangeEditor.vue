@@ -285,6 +285,16 @@ export default {
       return id
     }
 
+    const signalTypes = {
+      'Thermistor Dry Contact': { unit: "v", min: 0, max: 10000 },
+      '4-20 ma': { unit: "ma", min: 4, max: 20 },
+      '0-5 V': { unit: "v", min: 0, max: 5 },
+      '0-10 V': { unit: "v", min: 0, max: 10 },
+      'PT 1K': { unit: "v", min: 0, max: 10000 },
+    }
+
+    const signalTypesKeys = Object.keys(signalTypes)
+
     return {
       value,
       rangeEditorDialog,
@@ -320,7 +330,9 @@ export default {
       removeAnalogRange,
       addNewAnalogPoint,
       editAnalogRangeDialog,
-      deleteSelectedPoints
+      deleteSelectedPoints,
+      signalTypes,
+      signalTypesKeys
     };
   },
 };
@@ -513,16 +525,15 @@ export default {
             <q-input filled v-model="newAnalogRange.label" label="Label" lazy-rules
               :rules="[val => val !== undefined && val !== null && val !== '' || 'This field is required!']" />
             <q-input filled v-model="newAnalogRange.unit" label="Units" lazy-rules />
-            <q-select filled v-model="newAnalogRange.signalType" label="Signal Type" :options="[
-              'Thermistor Dry Contact',
-              '4-20 ma',
-              '0-5 V',
-              '0-10 V',
-              'PT 1K',
-            ]" />
+            <q-select filled v-model="newAnalogRange.signalType" label="Signal Type" :options="signalTypesKeys" />
           </div>
           <q-table :rows="newAnalogRange.points" selection="multiple" v-model:selected="addAnalogRangeDialog.selected"
             :columns="analogRangePointHeaders" row-key="id" hide-pagination :pagination="{ rowsPerPage: 0 }">
+            <template v-slot:header-cell-voltage="props">
+              <q-th :props="props">
+                {{  `${signalTypes[newAnalogRange.signalType].unit === 'v' ? 'Voltage' : 'Current'}`  }}
+              </q-th>
+            </template>
             <template v-slot:top>
               <q-btn color="primary" label="Add new point" @click="addNewAnalogPoint(newAnalogRange.points)" />
               <q-btn v-if="addAnalogRangeDialog.selected.length" class="q-ml-sm" color="red"
@@ -530,9 +541,11 @@ export default {
             </template>
             <template v-slot:body-cell-voltage="props">
               <q-td :props="props">
-                <q-input filled type="number" v-model.number="props.row.voltage" label="Voltage" min="0" step="0.1"
-                  lazy-rules
-                  :rules="[val => (props.rowIndex === 0 || val > newAnalogRange.points[props.rowIndex - 1].voltage) || 'Voltage should be bigger the the previous row voltage!']" />
+                <q-input filled type="number" v-model.number="props.row.voltage"
+                  :label="signalTypes[newAnalogRange.signalType].unit === 'v' ? 'Voltage' : 'Current'"
+                  :min="signalTypes[newAnalogRange.signalType].min" :max="signalTypes[newAnalogRange.signalType].max"
+                  step="0.1" lazy-rules
+                  :rules="[val => (props.rowIndex === 0 || val > newAnalogRange.points[props.rowIndex - 1].voltage) || `${signalTypes[newAnalogRange.signalType].unit === 'v' ? 'Voltage' : 'Current'} should be bigger the the previous row voltage!`]" />
               </q-td>
             </template>
             <template v-slot:body-cell-value="props">
@@ -572,17 +585,17 @@ export default {
             <q-input filled v-model="editAnalogRangeDialog.data.label" label="Label" lazy-rules
               :rules="[val => val !== undefined && val !== null && val !== '' || 'This field is required!']" />
             <q-input filled v-model="editAnalogRangeDialog.data.unit" label="Units" lazy-rules />
-            <q-select filled v-model="editAnalogRangeDialog.data.signalType" label="Signal Type" :options="[
-              'Thermistor Dry Contact',
-              '4-20 ma',
-              '0-5 V',
-              '0-10 V',
-              'PT 1K',
-            ]" />
+            <q-select filled v-model="editAnalogRangeDialog.data.signalType" label="Signal Type"
+              :options="signalTypesKeys" />
           </div>
           <q-table :rows="editAnalogRangeDialog.data.points" selection="multiple"
             v-model:selected="editAnalogRangeDialog.selected" :columns="analogRangePointHeaders" row-key="id"
             hide-pagination :pagination="{ rowsPerPage: 0 }">
+            <template v-slot:header-cell-voltage="props">
+              <q-th :props="props">
+                {{  `${signalTypes[editAnalogRangeDialog.data.signalType].unit === 'v' ? 'Voltage' : 'Current'}`  }}
+              </q-th>
+            </template>
             <template v-slot:top>
               <q-btn color="primary" label="Add new point"
                 @click="addNewAnalogPoint(editAnalogRangeDialog.data.points)" />
@@ -591,9 +604,11 @@ export default {
             </template>
             <template v-slot:body-cell-voltage="props">
               <q-td :props="props">
-                <q-input filled type="number" v-model.number="props.row.voltage" label="Voltage" min="0" step="0.1"
-                  lazy-rules
-                  :rules="[val => (props.rowIndex === 0 || val > editAnalogRangeDialog.data.points[props.rowIndex - 1].voltage) || 'Voltage should be bigger the the previous row voltage!']" />
+                <q-input filled type="number" v-model.number="props.row.voltage"
+                  :label="signalTypes[editAnalogRangeDialog.data.signalType].unit === 'v' ? 'Voltage' : 'Current'"
+                  :min="signalTypes[editAnalogRangeDialog.data.signalType].min"
+                  :max="signalTypes[editAnalogRangeDialog.data.signalType].max" step="0.1" lazy-rules
+                  :rules="[val => (props.rowIndex === 0 || val > editAnalogRangeDialog.data.points[props.rowIndex - 1].voltage) || `${signalTypes[editAnalogRangeDialog.data.signalType].unit === 'v' ? 'Voltage' : 'Current'} should be bigger the the previous row voltage!`]" />
               </q-td>
             </template>
             <template v-slot:body-cell-value="props">
