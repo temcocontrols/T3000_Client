@@ -50,7 +50,7 @@ module.exports = configure(function (/* ctx */) {
     build: {
       env: require("dotenv").config().parsed,
       target: {
-        browser: ["es2017", "edge80", "firefox72", "chrome80", "safari12.1"],
+        browser: ["es2018", "edge90", "firefox82", "chrome90"],
         node: "node16",
       },
       vueRouterMode: "history", // available values: 'hash', 'history'
