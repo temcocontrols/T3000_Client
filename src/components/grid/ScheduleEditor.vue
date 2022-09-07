@@ -171,7 +171,8 @@ export default {
         <q-btn icon="close" flat round dense @click="cancel()" />
       </q-card-section>
       <q-card-section style="max-height: 75vh" class="scroll q-pt-none">
-        <q-table :rows="filteredRows" selection="multiple" v-model:selected="selected" :columns="columns" row-key="id">
+        <q-table :rows="filteredRows" selection="multiple" v-model:selected="selected" :columns="columns" row-key="id"
+          hide-pagination :pagination="{ rowsPerPage: 0 }">
           <template v-slot:top>
             <q-btn color="primary" label="Add row" @click="addNewRow" />
             <q-btn v-if="selected.length" class="q-ml-sm" color="red" label="Remove selected rows"
