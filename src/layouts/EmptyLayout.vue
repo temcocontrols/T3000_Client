@@ -1,6 +1,8 @@
 <template>
   <q-layout view="hHh lpR fFf" class="flex flex-col">
-    <router-view />
+    <q-page-container class="flex-1">
+      <router-view />
+    </q-page-container>
     <app-footer />
   </q-layout>
 </template>

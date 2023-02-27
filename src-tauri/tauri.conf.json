@@ -1,19 +1,26 @@
 {
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "devPath": "http://localhost:9000",
+    "distDir": "../dist/spa"
+  },
   "package": {
-    "productName": "t3000-online-database",
+    "productName": "t3000-client",
     "version": "0.1.0"
   },
-  "build": {
-    "distDir": "../dist/spa",
-    "devPath": "http://localhost:9000",
-    "beforeDevCommand": "",
-    "beforeBuildCommand": ""
-  },
   "tauri": {
+    "allowlist": {
+      "all": false
+    },
     "bundle": {
       "active": true,
-      "targets": "all",
-      "identifier": "com.temcocontrols.com",
+      "category": "DeveloperTool",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -21,48 +28,38 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [],
-      "externalBin": [],
-      "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
+      "identifier": "com.temcocontrols.com",
       "longDescription": "",
-      "deb": {
-        "depends": [],
-        "useBootstrapper": false
-      },
       "macOS": {
-        "frameworks": [],
-        "minimumSystemVersion": "",
-        "useBootstrapper": false,
+        "entitlements": null,
         "exceptionDomain": "",
-        "signingIdentity": null,
+        "frameworks": [],
         "providerShortName": null,
-        "entitlements": null
+        "signingIdentity": null
       },
+      "resources": [],
+      "shortDescription": "",
+      "targets": "all",
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
         "timestampUrl": ""
       }
     },
+    "security": {
+      "csp": null
+    },
     "updater": {
       "active": false
     },
-    "allowlist": {
-      "all": true
-    },
     "windows": [
       {
-        "title": "T3000 Online DB",
-        "width": 1200,
-        "height": 700,
+        "fullscreen": false,
+        "height": 800,
         "resizable": true,
-        "fullscreen": false
+        "title": "T3000 Client",
+        "width": 1300
       }
-    ],
-    "security": {
-      "csp": null
-    }
+    ]
   }
 }
