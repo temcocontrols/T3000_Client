@@ -12,6 +12,7 @@ export default {
     const router = useRouter();
     const $q = useQuasar();
     const accessKey = ref("")
+    const apiUrl = ref(process.env.API_URL)
     onBeforeUnmount(() => {
       $q.loading.hide();
     });
@@ -21,23 +22,23 @@ export default {
         }
       `);
 
-    const logoutMut = useMutation(`
+    /* const logoutMut = useMutation(`
         mutation {
           logout
         }
       `);
-    /*  async function logout() {
+      async function logout() {
        store.setUser(null);
        await logoutMut.executeMutation();
      } */
 
     function login() {
+      $q.cookies.set('api-url', apiUrl.value, { expires: "30d" })
       $q.loading.show({
         message: "Logging in...",
       });
       loginMut.executeMutation({ accessKey: accessKey.value }).then(async (res) => {
         $q.loading.hide();
-
         if (res.data?.login) {
           $q.cookies.set('access-key', accessKey.value, { expires: "30d" })
           store.setAuthenticated(true);
@@ -58,6 +59,7 @@ export default {
 
     return {
       login,
+      apiUrl,
       accessKey
     };
   },
@@ -72,6 +74,7 @@ export default {
       </q-card-section>
       <q-form @submit="login">
         <q-card-section>
+          <q-input id="secret" v-model="apiUrl" label="API URL" required hide-bottom-space class="q-pb-sm" />
           <q-input id="secret" v-model="accessKey" type="password" label="Access Key" required @keyup.enter="login"
             hide-bottom-space class="q-pb-sm" />
         </q-card-section>
@@ -83,5 +86,4 @@ export default {
   </q-page>
 </template>
 
-<style>
-</style>
+<style></style>

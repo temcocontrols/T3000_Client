@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import { useAppStore } from "stores/appStore";
 import { useQuasar } from "quasar";
-import { useMutation } from "@urql/vue";
 import { useRouter } from "vue-router";
 
 export default {
@@ -18,20 +17,10 @@ export default {
     const router = useRouter();
     const $q = useQuasar();
     const search = ref("");
-    const logoutMut = useMutation(`
-        mutation {
-          logout
-        }
-      `);
     function logout() {
-      store.setUser(null);
-      logoutMut.executeMutation().then((res) => {
-        router.push({ path: "/" });
-        location.reload();
-      });
-    }
-    if (!store.authenticated) {
-      logout();
+      $q.cookies.remove("api-url");
+      $q.cookies.remove("access-key");
+      router.push({ path: "/" });
     }
     return {
       store,
@@ -63,16 +52,16 @@ export default {
         <div class="desktop-menu items-center q-px-md menu-items lg:flex">
           <template v-for="navItem in navItems" :key="navItem.label">
             <router-link v-if="!navItem.requireAuth || (navItem.requireAuth && store.authenticated)" exact class="
-                text-gray-600
-                hover:bg-gray-700 hover:text-white
-                block
-                px-3
-                py-2
-                mx-2
-                rounded-md
-                text-base
-                font-medium
-              " :to="navItem.to">{{ navItem.label }}</router-link>
+                  text-gray-600
+                  hover:bg-gray-700 hover:text-white
+                  block
+                  px-3
+                  py-2
+                  mx-2
+                  rounded-md
+                  text-base
+                  font-medium
+                " :to="navItem.to">{{ navItem.label }}</router-link>
           </template>
         </div>
       </slot>

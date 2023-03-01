@@ -9,8 +9,9 @@ import { authExchange } from "@urql/exchange-auth";
 import { Cookies } from "quasar";
 import { isAuthError } from "./common";
 
+const apiUrl = process.env.API_URL || Cookies.get("api-url");
 export const client = createClient({
-  url: process.env.API_URL + "graphql",
+  url: apiUrl + "graphql",
   fetchOptions: { credentials: "include" },
   exchanges: [
     dedupExchange,
