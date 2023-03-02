@@ -44,7 +44,7 @@ jobs:
         id: publish-release
         uses: actions/github-script@v6
         env:
-          release_id: ${{ github.ref }}
+          release_id: ${{ github.event.release.id }}
         with:
           script: |
             github.rest.repos.updateRelease({
