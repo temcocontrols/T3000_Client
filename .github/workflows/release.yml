@@ -45,14 +45,14 @@ jobs:
         uses: actions/github-script@v6
         env:
           release_id: ${{ github.event.release.id }}
+          version: ${{ github.event.release.tag_name }}
         with:
           script: |
             github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: process.env.release_id,
-              tag_name: `app-v${process.env.PACKAGE_VERSION}`,
-              name: `T3000 Client Desktop App v${process.env.PACKAGE_VERSION}`,
+              name: `T3000 Client Desktop App v${process.env.version}`,
               body: 'Take a look at the assets to download and install the T3000 client.',
               draft: false,
               prerelease: false
