@@ -8,6 +8,8 @@
   "scripts": {
     "lint": "eslint --ext .js,.vue ./",
     "build": "quasar build",
+    "build:android": "quasar build --mode capacitor --target android",
+    "build:ios": "quasar build --mode capacitor --target ios",
     "dev": "quasar dev",
     "tauri": "cargo tauri",
     "tauri:dev": "npm run tauri dev",

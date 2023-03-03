@@ -1,0 +1,7 @@
+{
+  "appId": "org.temcocontrols_t3000_client.app",
+  "appName": "T3000 Client - Temco Controls",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www"
+}
